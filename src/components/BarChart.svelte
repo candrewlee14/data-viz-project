@@ -61,8 +61,8 @@
   bind:clientHeight={height}
   class="viz-section"
 >
-  {#if tradeData}
-    <svg>
+  <svg>
+    {#if tradeData && tradeData.length > 0}
       <text
         text-anchor="start"
         class="chart-header"
@@ -152,8 +152,16 @@
         />
         <g id="axis" bind:this={axisElem} />
       </g>
-    </svg>
-  {/if}
+    {:else}
+      <text
+        in:fade
+        x={width / 2}
+        y={height / 2}
+        alignment-baseline="central"
+        text-anchor="middle">No valid data for this pair.</text
+      >
+    {/if}
+  </svg>
 </div>
 
 <style>

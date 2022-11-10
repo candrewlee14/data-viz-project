@@ -42,7 +42,7 @@
       d3.csv(window.location.href + "data/hs_2020.csv"),
     ]).then(([l, p, b]) => {
       locationData = d3.index(
-        l.map((v) => new Location(v)),
+        l.map((v) => new Location(v)).filter((v) => v.level == "country"),
         (v) => v.id
       );
       productData = d3.index(
@@ -74,7 +74,12 @@
   <h2>Visualization by Andrew Lee and Franklin Yuan</h2>
 </div>
 <div class="selectors">
-  <div class="country-icon" style={`background:${countryColorScale ? countryColorScale(country1?.id ?? 0) : "white"}`} />
+  <div
+    class="country-icon"
+    style={`background:${
+      countryColorScale ? countryColorScale(country1?.id ?? 0) : "white"
+    }`}
+  />
   <div class="dropdown">
     <span>Country 1</span>
     <Select
@@ -95,7 +100,12 @@
       on:select={onSelectCountry2}
     />
   </div>
-  <div class="country-icon" style={`background:${countryColorScale ? countryColorScale(country2?.id ?? 0) : "white"}`} />
+  <div
+    class="country-icon"
+    style={`background:${
+      countryColorScale ? countryColorScale(country2?.id ?? 0) : "white"
+    }`}
+  />
 </div>
 <!-- <Example locationMap={locationData}/> -->
 <div id="container">
@@ -108,19 +118,16 @@
       {locationData}
     />
 
-    <BarChart
-      {country1}
-      {country2}
-      {bilateralData}
-      {countryColorScale}
-    />
+    <BarChart {country1} {country2} {bilateralData} {countryColorScale} />
   </div>
 </div>
 
 <style>
-  @import url('https://fonts.googleapis.com/css2?family=Lato:ital,wght@0,400;0,700;1,400&family=Roboto+Slab:wght@300;400;700&display=swap');
-  div, p, text {
-    font-family: 'Roboto Slab', serif;
+  @import url("https://fonts.googleapis.com/css2?family=Lato:ital,wght@0,400;0,700;1,400&family=Roboto+Slab:wght@300;400;700&display=swap");
+  div,
+  p,
+  text {
+    font-family: "Roboto Slab", serif;
   }
   .heading {
     width: 100%;
@@ -154,7 +161,7 @@
   :global(.viz-section) {
     width: 800px;
     height: 40vh;
-    border: 2px solid rgba(0,0,0,0.2);
+    border: 2px solid rgba(0, 0, 0, 0.2);
     margin: 20px;
     padding: 0;
   }
@@ -179,6 +186,6 @@
     margin-top: 10px;
     width: 50px;
     height: 65px;
-    border: 2px solid rgba(0,0,0,0.2);
+    border: 2px solid rgba(0, 0, 0, 0.2);
   }
 </style>
