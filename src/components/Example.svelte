@@ -4,6 +4,6 @@
 </script>
 
 
-{#each [...locationMap] as [location_id, location]}
+{#each [...locationMap] as [location_id, location] (location_id)}
     <p>{location.name}</p>
 {/each}
