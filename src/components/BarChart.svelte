@@ -22,7 +22,7 @@
   const MARGIN_TOP = 30;
   const PRODUCT_WIDTH = 100;
   const ROW_SPACE = 4;
-  const formatter = d3.format("$.4s");
+  const formatter = (val: number) => d3.format("$.2s")(val).replace(/G/, "B");
 
   $: tradeData = bilateralData
     .get(country1?.id ?? 0)
@@ -102,7 +102,7 @@
       </text>
       <g id="bar-content" transform={`translate(${0},${LABEL_HEIGHT})`}>
         {#each tradeData as bt, i (bt.product.name)}
-          <g in:fade out:fade>
+          <g>
             {#if i % 2 == 0}
               <rect
                 x="0"
@@ -168,5 +168,8 @@
   .chart-header {
     font-size: 18px;
     font-weight: bold;
+  }
+  rect {
+    transition: fill, x, y, width 0.4s ease;
   }
 </style>
