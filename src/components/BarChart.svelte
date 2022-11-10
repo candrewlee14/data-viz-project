@@ -9,10 +9,8 @@
   // export let locationData: Map<number, Location>;
   // export let productData: Map<number, Product>;
   export let countryColorScale: d3.ScaleOrdinal<number, string, never>;
-  export let country1: number;
-  export let country1Name: string;
-  export let country2: number;
-  export let country2Name: string;
+  export let country1: Location | null;
+  export let country2: Location | null;
 
   let width = 800;
   let height = 500;
@@ -27,18 +25,18 @@
   const formatter = d3.format("$.4s");
 
   $: tradeData = bilateralData
-    .get(country1)
-    ?.get(country2)
+    .get(country1?.id ?? 0)
+    ?.get(country2?.id ?? 0)
     ?.filter((v) => v.product.level == "section");
 
   // @ts-ignore
   $: maxExport = d3.max(
-    bilateralData.get(country1)?.get(country2) ?? new Array(),
+    bilateralData.get(country1?.id ?? 0)?.get(country2?.id ?? 0) ?? new Array(),
     (v: BilateralTradeYear) => v.export_value
   ) as number;
 
   $: maxImport = d3.max(
-    bilateralData.get(country1)?.get(country2) ?? new Array(),
+    bilateralData.get(country1?.id ?? 0)?.get(country2?.id ?? 0) ?? new Array(),
     (v: BilateralTradeYear) => v.import_value
   ) as number;
 
@@ -53,7 +51,7 @@
     let axis = d3
       .axisBottom(barScale)
       .tickFormat((v) => formatter(Math.abs(v as number)));
-    d3.select(axisElem).call(axis);
+    d3.select(axisElem).transition().call(axis);
   }
 </script>
 
@@ -66,31 +64,41 @@
   {#if tradeData}
     <svg>
       <text
+        text-anchor="start"
         class="chart-header"
-        x={barScale(0)}
-        y={LABEL_HEIGHT / 2 - 5}
+        x={15}
+        y={LABEL_HEIGHT / 2}
         alignment-baseline="hanging"
       >
-        Trade Flow Across Products
+        Sector
+      </text>
+      <text
+        text-anchor="middle"
+        class="chart-header"
+        x={(width - PRODUCT_WIDTH) / 2 + PRODUCT_WIDTH}
+        y={LABEL_HEIGHT / 2 - 7}
+        alignment-baseline="hanging"
+      >
+        Trade Flow
       </text>
       <text
         class="from-label"
-        x={barScale(-maxExport) - country1Name.length * 2}
+        x={PRODUCT_WIDTH + 20}
         y={LABEL_HEIGHT / 2 - 5}
         alignment-baseline="hanging"
         font-size="13"
       >
-        From {country1Name}
+        From {country1?.name}
       </text>
       <text
         class="from-label"
-        x={barScale(maxImport) - 20}
+        x={width - 20}
         y={LABEL_HEIGHT / 2 - 5}
         text-anchor="end"
         alignment-baseline="hanging"
         font-size="13"
       >
-        From {country2Name}
+        From {country2?.name}
       </text>
       <g id="bar-content" transform={`translate(${0},${LABEL_HEIGHT})`}>
         {#each tradeData as bt, i (bt.product.name)}
