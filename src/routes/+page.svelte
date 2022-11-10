@@ -6,8 +6,11 @@
   import LineChart from "../components/LineChart.svelte";
   import BarChart from "../components/BarChart.svelte";
 
-  let country1 = 7;
+  let country1 = 31;
   let country2 = 15;
+
+  $: country1Name = locationData.get(country1)?.name ?? "";
+  $: country2Name = locationData.get(country2)?.name ?? "";
 
   let locationData: Map<number, Location> = new Map();
 
@@ -44,7 +47,10 @@
       // @ts-ignore
       exportExtent = d3.extent(b, (v) => +v["export_value"]!);
 
-      countryColorScale = d3.scaleOrdinal(locationData.keys(), d3.schemeTableau10);
+      countryColorScale = d3.scaleOrdinal(
+        locationData.keys(),
+        d3.schemeTableau10
+      );
     });
   });
 </script>
@@ -62,7 +68,14 @@
       {locationData}
     />
 
-    <BarChart {country1} {country2} {bilateralData} {countryColorScale}/>
+    <BarChart
+      {country1}
+      {country1Name}
+      {country2}
+      {country2Name}
+      {bilateralData}
+      {countryColorScale}
+    />
   </div>
 </div>
 
