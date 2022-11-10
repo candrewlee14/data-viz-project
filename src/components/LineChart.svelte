@@ -31,6 +31,7 @@
     );
 </script>
 
+<div id="line-chart" class="viz-section">
 {#if tradeYearTotal}
   <p>{country1}</p>
   <p>{country2}</p>
@@ -39,3 +40,7 @@
 {:else}
   <p>Loading data...</p>
 {/if}
+</div>
+
+<style>
+</style>
