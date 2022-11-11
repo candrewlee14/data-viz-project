@@ -2,7 +2,7 @@
   import * as d3 from "d3";
   import { count, treemap } from "d3";
   import { type Location, Product, BilateralTradeYear } from "../models/models";
-  
+
   const formatter = (val: number) => d3.format("$.2s")(val).replace(/G/, "B");
 
   export let bilateralDataForYear: Map<
@@ -36,6 +36,7 @@
       level: -1,
       parent_id: -1,
     });
+    // it is necessary to set this as null for stratify to consider it the parent
     // @ts-ignore
     bl.product.parent_id = null;
     let bls = [bl, ...bilaterals];

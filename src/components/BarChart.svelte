@@ -22,6 +22,7 @@
   const LABEL_HEIGHT = 40;
   const ROW_HEIGHT = 30;
   const MARGIN_X = 0;
+  const MARGIN_RIGHT = 10;
   const MARGIN_TOP = 30;
   const PRODUCT_WIDTH = 100;
   const ROW_SPACE = 4;
@@ -50,7 +51,7 @@
   $: barScale = d3
     .scaleLinear()
     .domain([-maxExport, maxImport])
-    .range([PRODUCT_WIDTH + MARGIN_X, width - MARGIN_X]);
+    .range([PRODUCT_WIDTH + MARGIN_X, width - MARGIN_X - MARGIN_RIGHT]);
 
   $: {
     let axis = d3

@@ -16,6 +16,7 @@
   export let countryColorScale: d3.ScaleOrdinal<number, string, never>;
 
   const MARGIN = 35;
+  const MARGIN_TOP = 15;
   const MARGIN_LEFT = 50;
 
   let width = 800;
@@ -70,7 +71,7 @@
         Math.max(d.export_value, d.import_value)
       ) ?? 0,
     ])
-    .range([height - MARGIN, MARGIN]);
+    .range([height - MARGIN, MARGIN + MARGIN_TOP]);
 
   $: xScale = d3
     .scaleLinear()
