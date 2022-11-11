@@ -8,6 +8,7 @@
   import BarChart from "../components/BarChart.svelte";
   import Range from "../components/Range.svelte";
   import TreeMap from "../components/TreeMap.svelte";
+  import {browser} from '$app/environment';
 
   const optionIdentifier = "id";
   const labelIdentifier = "name";
@@ -43,6 +44,18 @@
   let exportExtent: [number, number];
 
   $: bilateralDataForYear = bilateralData?.get(year) ?? new Map();
+  let drilldownBilateralForYear : Map<number, Map<number, BilateralTradeYear[]>>;
+
+  $ : {
+    if (browser) {
+    d3.csv(window.location.href + "data/hs2_" + year.toString() + ".csv").then((b) => 
+      drilldownBilateralForYear = d3.group(
+        b.map((v) => new BilateralTradeYear(locationData, productData, v)),
+        (v) => v.location_id,
+        (v) => v.partner_id
+      ));
+    }
+  }
 
   onMount(async () => {
     Promise.all([
@@ -122,6 +135,7 @@
   <!-- <Example locationMap={locationData}/> -->
   <div id="container">
     <div id="content">
+      <div class="row1">
       <LineChart
         {bilateralData}
         country1={country1?.id ?? 0}
@@ -136,8 +150,9 @@
         {bilateralDataForYear}
         {countryColorScale}
       />
-      <TreeMap {country1} {country2} {bilateralDataForYear} valueField="export_value" />
-      <TreeMap {country2} {country1} {bilateralDataForYear} valueField="import_value"/>
+      </div>
+      <TreeMap {country1} {country2} {bilateralDataForYear} {drilldownBilateralForYear} valueField="export_value" />
+      <TreeMap {country2} {country1} {bilateralDataForYear} {drilldownBilateralForYear} valueField="import_value"/>
     </div>
   </div>
 {:else}
@@ -186,10 +201,13 @@
     justify-content: center;
     align-items: center;
   }
+  .row1 {
+    display: flex;
+    flex-direction: row;
+  }
   #content {
-    display: grid;
-    grid-template-rows: 50% 50%;
-    grid-template-columns: 50% 50%;
+    display: flex;
+    flex-direction: column;
     // justify-content: center;
     // max-width: 1700px;
   }
@@ -199,6 +217,15 @@
     border: 2px solid rgba(0, 0, 0, 0.2);
     margin: 20px;
     padding: 0;
+  }
+  :global(.viz-section-full) {
+    width: 1640px;
+    height: 80vh;
+    border: 2px solid rgba(0, 0, 0, 0.2);
+    margin: 20px;
+    padding: 0;
+    grid-column-start: 0;
+    grid-column-end: 2;
   }
   .selectors {
     width: 100%;

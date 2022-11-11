@@ -9,6 +9,8 @@
     number,
     Map<number, BilateralTradeYear[]>
   > | null;
+  export let drilldownBilateralForYear : Map<number, Map<number, BilateralTradeYear[]>>;
+
   export let country1: Location | null;
   export let country2: Location | null;
   export let valueField: string;
@@ -17,8 +19,12 @@
   let height: number;
   let treemapElem: SVGGElement;
 
+  // $: bilaterals =
+  //   bilateralDataForYear?.get(country1?.id ?? 0)?.get(country2?.id ?? 0) ??
+  //   null;
+
   $: bilaterals =
-    bilateralDataForYear?.get(country1?.id ?? 0)?.get(country2?.id ?? 0) ??
+    drilldownBilateralForYear?.get(country1?.id ?? 0)?.get(country2?.id ?? 0) ??
     null;
 
   $: if (bilaterals) {
@@ -36,10 +42,37 @@
       level: -1,
       parent_id: -1,
     });
+
     // it is necessary to set this as null for stratify to consider it the parent
     // @ts-ignore
     bl.product.parent_id = null;
-    let bls = [bl, ...bilaterals];
+    let bls = [bl];
+
+    let bl_grouped = d3.group(bilaterals, (v) => v.product.parent_id);
+    console.log(bl_grouped);
+
+    for (let [key, value] of bl_grouped) {
+      let bl = new BilateralTradeYear(new Map(), new Map(), {
+        location_id: country1,
+        partner_id: country2,
+        product_id: key,
+        year: 0,
+        export_value: 0,
+        import_value: 0,
+        // export_value: d3.sum(value, (d) => d.export_value),
+        // import_value: d3.sum(value, (d) => d.import_value),
+      })
+      bl.product = new Product({
+        product_id: key,
+        name: "Something",
+        level: 0,
+        parent_id: -1
+      })
+      bls.push(bl)
+    }
+
+    bls = bls.concat(bilaterals);
+
     let treemapRoot = d3
       .stratify()
       .id((d: any) => d.product.id)
@@ -47,7 +80,7 @@
     let leaves = treemapRoot.leaves() as d3.HierarchyNode<BilateralTradeYear>[]
     let color = d3.scaleOrdinal(leaves.map((d) => d.data.product?.name ?? ""), d3.schemeTableau10);
     treemapRoot.sum((d: any) => Math.max(0, d[valueField]));
-    d3.treemap().tile(d3.treemapResquarify).size([width, height]).padding(2)(
+    d3.treemap().tile(d3.treemapSquarify).size([width, height]).padding(2)(
       treemapRoot
     );
     d3.select(treemapElem)
@@ -59,35 +92,35 @@
       .attr("transform", (d: any) => `translate(${d.x0},${d.y0})`)
       .attr("width", (d: any) => d.x1 - d.x0)
       .attr("height", (d: any) => d.y1 - d.y0)
-      .attr("fill", (d) => color(d.data?.product?.name ?? ""));
+      .attr("fill", (d) => color(d.data?.product?.parent?.name ?? ""));
 
     d3.select(treemapElem)
       .selectAll(".label")
-      .data(leaves.filter((d: any) => Math.min(d.x1 - d.x0, d.y1 - d.y0) > 20))
+      .data(leaves.filter((d: any) => Math.min(d.x1 - d.x0, d.y1 - d.y0) > 40))
       .join("text")
       .attr("class", "label")
       .transition()
       .attr("transform", (d: any) => `translate(${d.x0 + 1},${d.y0 + 1})`)
       .attr("alignment-baseline", "hanging")
       .attr("fill", "white")
-      .attr("font-size", (d: any) => Math.max((d.x1 - d.x0) / 10, 8))
-      .text((d) => d.data?.product.name ?? "");
+      .attr("font-size", (d: any) => Math.max((d.x1 - d.x0) / 15, 8))
+      .text((d) => d.data?.product.name?.substring(0, 40) ?? "");
     d3.select(treemapElem)
       .selectAll(".label-num")
-      .data(leaves.filter((d: any) => Math.min(d.x1 - d.x0, d.y1 - d.y0) > 20))
+      .data(leaves.filter((d: any) => Math.min(d.x1 - d.x0, d.y1 - d.y0) > 30))
       .join("text")
       .attr("class", "label-num")
       .transition()
       .attr("transform", (d: any) => `translate(${d.x0 + 5},${d.y0 + 1 + Math.max((d.x1 - d.x0) / 10, 8)})`)
       .attr("alignment-baseline", "hanging")
       .attr("fill", "white")
-      .attr("font-size", (d: any) => Math.max((d.x1 - d.x0) / 10, 8) - 1)
+      .attr("font-size", (d: any) => Math.max((d.x1 - d.x0) / 15, 8) - 1)
       .attr("font-weight", 300)
       .text((d: any) => formatter(d.data[valueField]) ?? "");
   }
 </script>
 
-<div class="viz-section" bind:clientWidth={width} bind:clientHeight={height}>
+<div class="viz-section-full" bind:clientWidth={width} bind:clientHeight={height}>
   <svg>
     <g class="treemap" bind:this={treemapElem} />
   </svg>
@@ -99,4 +132,5 @@
     height: 100%;
     margin: 0;
   }
+
 </style>
