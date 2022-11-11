@@ -7,6 +7,7 @@
   import LineChart from "../components/LineChart.svelte";
   import BarChart from "../components/BarChart.svelte";
   import Range from "../components/Range.svelte";
+  import TreeMap from "../components/TreeMap.svelte";
 
   const optionIdentifier = "id";
   const labelIdentifier = "name";
@@ -27,14 +28,14 @@
   const onSelectCountry2 = (e: any) => {
     let l = e.detail as Location;
     country2 = locationData!.get(l.id)!;
-  };
+  };  
 
   let locationData: Map<number, Location>;
 
   let countryColorScale: d3.ScaleOrdinal<number, string, never>;
 
   let productData: Map<number, Product>;
-  // maps reporting country to partner country then list of trades
+  // maps reporting year to reporting country to partner country then list of trades
   let bilateralData: Map<
     number,
     Map<number, Map<number, BilateralTradeYear[]>>
@@ -129,13 +130,14 @@
         {locationData}
         {countryColorScale}
       />
-
       <BarChart
         {country1}
         {country2}
         {bilateralDataForYear}
         {countryColorScale}
       />
+      <TreeMap {country1} {country2} {bilateralDataForYear} valueField="export_value" />
+      <TreeMap {country2} {country1} {bilateralDataForYear} valueField="import_value"/>
     </div>
   </div>
 {:else}
@@ -185,10 +187,11 @@
     align-items: center;
   }
   #content {
-    display: flex;
-    flex-direction: row;
-    justify-content: center;
-    max-width: 1700px;
+    display: grid;
+    grid-template-rows: 50% 50%;
+    grid-template-columns: 50% 50%;
+    // justify-content: center;
+    // max-width: 1700px;
   }
   :global(.viz-section) {
     width: 800px;

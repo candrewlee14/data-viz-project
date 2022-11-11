@@ -1,0 +1,101 @@
+<script lang="ts">
+  import * as d3 from "d3";
+  import { count, treemap } from "d3";
+  import { type Location, Product, BilateralTradeYear } from "../models/models";
+  
+  const formatter = (val: number) => d3.format("$.2s")(val).replace(/G/, "B");
+
+  export let bilateralDataForYear: Map<
+    number,
+    Map<number, BilateralTradeYear[]>
+  > | null;
+  export let country1: Location | null;
+  export let country2: Location | null;
+  export let valueField: string;
+
+  let width: number;
+  let height: number;
+  let treemapElem: SVGGElement;
+
+  $: bilaterals =
+    bilateralDataForYear?.get(country1?.id ?? 0)?.get(country2?.id ?? 0) ??
+    null;
+
+  $: if (bilaterals) {
+    let bl = new BilateralTradeYear(new Map(), new Map(), {
+      location_id: country1,
+      partner_id: country2,
+      product_id: -1,
+      year: 0,
+      export_value: 0,
+      import_value: 0,
+    });
+    bl.product = new Product({
+      product_id: -1,
+      name: "All",
+      level: -1,
+      parent_id: -1,
+    });
+    // @ts-ignore
+    bl.product.parent_id = null;
+    let bls = [bl, ...bilaterals];
+    let treemapRoot = d3
+      .stratify()
+      .id((d: any) => d.product.id)
+      .parentId((d: any) => d.product.parent_id)(bls);
+    let leaves = treemapRoot.leaves() as d3.HierarchyNode<BilateralTradeYear>[]
+    let color = d3.scaleOrdinal(leaves.map((d) => d.data.product?.name ?? ""), d3.schemeTableau10);
+    treemapRoot.sum((d: any) => Math.max(0, d[valueField]));
+    d3.treemap().tile(d3.treemapResquarify).size([width, height]).padding(2)(
+      treemapRoot
+    );
+    d3.select(treemapElem)
+      .selectAll(".leaf")
+      .data(leaves)
+      .join("rect")
+      .attr("class", "leaf")
+      .transition()
+      .attr("transform", (d: any) => `translate(${d.x0},${d.y0})`)
+      .attr("width", (d: any) => d.x1 - d.x0)
+      .attr("height", (d: any) => d.y1 - d.y0)
+      .attr("fill", (d) => color(d.data?.product?.name ?? ""));
+
+    d3.select(treemapElem)
+      .selectAll(".label")
+      .data(leaves.filter((d: any) => Math.min(d.x1 - d.x0, d.y1 - d.y0) > 20))
+      .join("text")
+      .attr("class", "label")
+      .transition()
+      .attr("transform", (d: any) => `translate(${d.x0 + 1},${d.y0 + 1})`)
+      .attr("alignment-baseline", "hanging")
+      .attr("fill", "white")
+      .attr("font-size", (d: any) => Math.max((d.x1 - d.x0) / 10, 8))
+      .text((d) => d.data?.product.name ?? "");
+    d3.select(treemapElem)
+      .selectAll(".label-num")
+      .data(leaves.filter((d: any) => Math.min(d.x1 - d.x0, d.y1 - d.y0) > 20))
+      .join("text")
+      .attr("class", "label-num")
+      .transition()
+      .attr("transform", (d: any) => `translate(${d.x0 + 5},${d.y0 + 1 + Math.max((d.x1 - d.x0) / 10, 8)})`)
+      .attr("alignment-baseline", "hanging")
+      .attr("fill", "white")
+      .attr("font-size", (d: any) => Math.max((d.x1 - d.x0) / 10, 8) - 1)
+      .attr("font-weight", 300)
+      .text((d: any) => formatter(d.data[valueField]) ?? "");
+  }
+</script>
+
+<div class="viz-section" bind:clientWidth={width} bind:clientHeight={height}>
+  <svg>
+    <g class="treemap" bind:this={treemapElem} />
+  </svg>
+</div>
+
+<style>
+  svg {
+    width: 100%;
+    height: 100%;
+    margin: 0;
+  }
+</style>

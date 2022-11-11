@@ -1,14 +1,15 @@
 ,product_id,hs_product_code,hs_product_name_short_en,level,parent_id
-0,0,0,Textiles,section,
-1,1,1,Agriculture,section,
-2,2,2,Stone,section,
-3,3,3,Minerals,section,
-4,4,4,Metals,section,
-5,5,5,Chemicals,section,
-6,6,6,Vehicles,section,
-7,7,7,Machinery,section,
-8,8,8,Electronics,section,
-9,9,9,Other,section,
+-1,-1,-1,All,all,
+0,0,0,Textiles,section, -1
+1,1,1,Agriculture,section, -1
+2,2,2,Stone,section, -1
+3,3,3,Minerals,section, -1
+4,4,4,Metals,section, -1
+5,5,5,Chemicals,section, -1
+6,6,6,Vehicles,section, -1
+7,7,7,Machinery,section, -1
+8,8,8,Electronics,section, -1
+9,9,9,Other,section, -1
 10,10,services,Services,section,
 11,100,01,Live animals,2digit,1.0
 12,101,02,Meat,2digit,1.0

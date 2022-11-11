@@ -20,7 +20,7 @@
 
   let width = 800;
   let height = 400;
-  const formatter = d3.format("$.2s");
+  const formatter = (val: number) => d3.format("$.2s")(val).replace(/G/, "B");
 
   // let tradeYearTotals: BilateralTradeYear[] = new Array();
   let xAxisElem: SVGGElement;
