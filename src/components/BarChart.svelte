@@ -5,7 +5,10 @@
   import { format, select } from "d3";
   import { fade, fly } from "svelte/transition";
 
-  export let bilateralData: Map<number, Map<number, BilateralTradeYear[]>>;
+  export let bilateralDataForYear: Map<
+    number,
+    Map<number, BilateralTradeYear[]>
+  >;
   // export let locationData: Map<number, Location>;
   // export let productData: Map<number, Product>;
   export let countryColorScale: d3.ScaleOrdinal<number, string, never>;
@@ -24,19 +27,21 @@
   const ROW_SPACE = 4;
   const formatter = (val: number) => d3.format("$.2s")(val).replace(/G/, "B");
 
-  $: tradeData = bilateralData
+  $: tradeData = bilateralDataForYear
     .get(country1?.id ?? 0)
     ?.get(country2?.id ?? 0)
     ?.filter((v) => v.product.level == "section");
 
   // @ts-ignore
   $: maxExport = d3.max(
-    bilateralData.get(country1?.id ?? 0)?.get(country2?.id ?? 0) ?? new Array(),
+    bilateralDataForYear.get(country1?.id ?? 0)?.get(country2?.id ?? 0) ??
+      new Array(),
     (v: BilateralTradeYear) => v.export_value
   ) as number;
 
   $: maxImport = d3.max(
-    bilateralData.get(country1?.id ?? 0)?.get(country2?.id ?? 0) ?? new Array(),
+    bilateralDataForYear.get(country1?.id ?? 0)?.get(country2?.id ?? 0) ??
+      new Array(),
     (v: BilateralTradeYear) => v.import_value
   ) as number;
 
@@ -119,6 +124,7 @@
               y={i * ROW_HEIGHT + MARGIN_TOP + 5}>{bt.product.name}</text
             >
             <rect
+              class="country1-bar"
               x={barScale(-bt.export_value)}
               y={i * ROW_HEIGHT + MARGIN_TOP + ROW_SPACE / 2}
               height={ROW_HEIGHT - ROW_SPACE}
@@ -126,6 +132,7 @@
               fill={countryColorScale(bt.location_id)}
             />
             <rect
+              class="country2-bar"
               x={barScale(0)}
               y={i * ROW_HEIGHT + MARGIN_TOP + ROW_SPACE / 2}
               height={ROW_HEIGHT - ROW_SPACE}
