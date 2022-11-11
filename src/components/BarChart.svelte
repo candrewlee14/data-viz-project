@@ -142,6 +142,7 @@
           </g>
         {/each}
         <line
+          id="midline"
           x1={barScale(0)}
           y1={20}
           x2={barScale(0)}
@@ -180,7 +181,7 @@
     height: 100%;
     margin: 0;
   }
-  .chart-header {
+  :global(.chart-header) {
     font-size: 18px;
     font-weight: bold;
   }

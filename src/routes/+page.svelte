@@ -140,7 +140,7 @@
   </div>
 {:else}
   <div class="loading">
-    <h2>Loading data...</h2>
+    <h3>Loading data...</h3>
     <svg class="spinner" viewBox="0 0 50 50">
       <circle
         class="path"
@@ -222,7 +222,8 @@
   }
   .loading {
     margin-top: 100px;
-    font-weight: light;
+    font-size: 20px;
+    font-weight: bold;
     width: 100%;
     display: flex;
     flex-direction: row;
@@ -235,9 +236,9 @@
     position: absolute;
     top: 50%;
     left: 50%;
-    margin: -25px 0 0 -25px;
-    width: 50px;
-    height: 50px;
+    margin: -70px 0 0 -70px;
+    width: 140px;
+    height: 140px;
 
     & .path {
       stroke: hsl(210, 70, 75);

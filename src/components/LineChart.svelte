@@ -15,7 +15,7 @@
   export let country2: number;
   export let countryColorScale: d3.ScaleOrdinal<number, string, never>;
 
-  const MARGIN = 30;
+  const MARGIN = 35;
   const MARGIN_LEFT = 50;
 
   let width = 800;
@@ -115,10 +115,21 @@
   bind:clientHeight={height}
 >
   <svg {width} {height}>
+    <text class="chart-header" x={width/2} y={MARGIN-5} text-anchor="middle">Total Trade Over Time</text>
     <g id="xAxis" bind:this={xAxisElem} transform={`translate(${0},${height - MARGIN})`}/>
     <g id="yAis" bind:this={yAxisElem} transform={`translate(${MARGIN_LEFT},${0})`}/>
-    <path bind:this={country1Line} fill="none" stroke={countryColorScale(country1)} stroke-width=2/>
-    <path bind:this={country2Line} fill="none" stroke={countryColorScale(country2)} stroke-width=2/>
+    <g class="country1-group country-group">
+      <path bind:this={country1Line} fill="none" stroke={countryColorScale(country1)} stroke-width=2/>
+      {#each tradeYearTotals as bt (bt.year)}
+        <circle cx={xScale(bt.year)} cy={yScale(bt.export_value)} r=5 fill={countryColorScale(country1)}/>
+      {/each}
+    </g>
+    <g class="country2-group country-group">
+      <path bind:this={country2Line} fill="none" stroke={countryColorScale(country2)} stroke-width=2/>
+      {#each tradeYearTotals as bt (bt.year)}
+        <circle cx={xScale(bt.year)} cy={yScale(bt.import_value)} r=5 fill={countryColorScale(country2)}/>
+      {/each}
+    </g>
   </svg>
   <!-- <p>{formatter(tradeYearTotals.export_value ?? 0)}</p>
   <p>{formatter(tradeYearTotals.import_value ?? 0)}</p>
@@ -126,4 +137,7 @@
 </div>
 
 <style>
+  .country-group circle {
+    transition: cx, cy 0.3s ease-in-out;
+  }
 </style>
