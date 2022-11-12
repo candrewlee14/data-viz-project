@@ -77,7 +77,7 @@
       .stratify()
       .id((d: any) => d.product.id)
       .parentId((d: any) => d.product.parent_id)(bls);
-    let leaves = treemapRoot.leaves() as d3.HierarchyNode<BilateralTradeYear>[]
+    let leaves = treemapRoot.leaves() as d3.HierarchyNode<BilateralTradeYear>[];
     let color = d3.scaleOrdinal(leaves.map((d) => d.data.product?.name ?? ""), d3.schemeTableau10);
     treemapRoot.sum((d: any) => Math.max(0, d[valueField]));
     d3.treemap().tile(d3.treemapSquarify).size([width, height]).padding(2)(
@@ -96,18 +96,18 @@
 
     d3.select(treemapElem)
       .selectAll(".label")
-      .data(leaves.filter((d: any) => Math.min(d.x1 - d.x0, d.y1 - d.y0) > 40))
+      .data(leaves.filter((d: any) => d.x1 - d.x0 > 40 && d.y1 - d.y0 > 10))
       .join("text")
       .attr("class", "label")
       .transition()
-      .attr("transform", (d: any) => `translate(${d.x0 + 1},${d.y0 + 1})`)
+      .attr("transform", (d: any) => `translate(${d.x0 + 3},${d.y0 + 3})`)
       .attr("alignment-baseline", "hanging")
       .attr("fill", "white")
       .attr("font-size", (d: any) => Math.max((d.x1 - d.x0) / 15, 8))
       .text((d) => d.data?.product.name?.substring(0, 40) ?? "");
     d3.select(treemapElem)
       .selectAll(".label-num")
-      .data(leaves.filter((d: any) => Math.min(d.x1 - d.x0, d.y1 - d.y0) > 30))
+      .data(leaves.filter((d: any) => d.x1 - d.x0 > 40 && d.y1 - d.y0 > 30))
       .join("text")
       .attr("class", "label-num")
       .transition()
@@ -120,7 +120,7 @@
   }
 </script>
 
-<div class="viz-section-full" bind:clientWidth={width} bind:clientHeight={height}>
+<div class="viz-section" bind:clientWidth={width} bind:clientHeight={height}>
   <svg>
     <g class="treemap" bind:this={treemapElem} />
   </svg>

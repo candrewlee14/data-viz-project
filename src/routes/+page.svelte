@@ -135,7 +135,7 @@
   <!-- <Example locationMap={locationData}/> -->
   <div id="container">
     <div id="content">
-      <div class="row1">
+      <div class="viz-row">
       <LineChart
         {bilateralData}
         country1={country1?.id ?? 0}
@@ -151,8 +151,10 @@
         {countryColorScale}
       />
       </div>
+      <div class="viz-row">
       <TreeMap {country1} {country2} {bilateralDataForYear} {drilldownBilateralForYear} valueField="export_value" />
       <TreeMap {country2} {country1} {bilateralDataForYear} {drilldownBilateralForYear} valueField="import_value"/>
+      </div>  
     </div>
   </div>
 {:else}
@@ -201,7 +203,7 @@
     justify-content: center;
     align-items: center;
   }
-  .row1 {
+  .viz-row {
     display: flex;
     flex-direction: row;
   }
