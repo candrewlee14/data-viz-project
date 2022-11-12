@@ -1,5 +1,6 @@
 <script lang="ts">
   import * as d3 from "d3";
+  import { year } from "../stores/store.js";
   import { Location, Product, BilateralTradeYear } from "../models/models";
   import { onMount } from "svelte";
   import Select from "svelte-select";
@@ -16,8 +17,6 @@
   const USA_ID = 231;
   // 43 is China
   const CHINA_ID = 43;
-
-  let year = 2020;
 
   $: country1 = locationData?.get(USA_ID) ?? null;
   $: country2 = locationData?.get(CHINA_ID) ?? null;
@@ -45,11 +44,11 @@
   >;
   let exportExtent: [number, number];
 
-  $: bilateralDataForYear = bilateralData?.get(year) ?? new Map();
+  $: bilateralDataForYear = bilateralData?.get($year) ?? new Map();
   let drilldownBilateralForYear: Map<number, Map<number, BilateralTradeYear[]>>;
 
   $: if (browser) {
-    d3.csv(window.location.href + "data/hs2_" + year.toString() + ".csv").then(
+    d3.csv(window.location.href + "data/hs2_" + $year.toString() + ".csv").then(
       (b) => {
         drilldownBilateralForYear = d3.group(
           b.map((v) => new BilateralTradeYear(locationData, productData, v)),
@@ -140,7 +139,7 @@
     />
   </div>
   <div>
-    <Range on:change={(e) => (year = e.detail.value)} />
+    <!-- <Range on:change={(e) => (year = e.detail.value)} /> -->
   </div>
   <!-- <Example locationMap={locationData}/> -->
   <div id="container">

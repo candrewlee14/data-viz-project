@@ -1,5 +1,6 @@
 <script lang="ts">
   import * as d3 from "d3";
+  import { year } from "../stores/store";
   import {
     type Location,
     type Product,
@@ -30,12 +31,13 @@
   let country2Line: SVGPathElement;
 
   $: tradeYearTotals = Array.from(bilateralData?.entries() ?? new Array())
-      .map((data) => {
+    .map((data) => {
       // @ts-ignore
-      let year : number = data[0];
+      let year: number = data[0];
       // @ts-ignore
-      let v : Map<number, Map<number, BilateralTradeYear[]>> = data[1];
-      return v
+      let v: Map<number, Map<number, BilateralTradeYear[]>> = data[1];
+      return (
+        v
           .get(country1)
           ?.get(country2)
           ?.reduce(
@@ -53,15 +55,17 @@
               import_value: 0,
             })
           ) ??
-          new BilateralTradeYear(locationData, productData, {
-            location_id: country1,
-            partner_id: country2,
-            product_id: 0,
-            year: year,
-            export_value: 0,
-            import_value: 0,
-          });
-  }).sort((a, b) => a.year - b.year);
+        new BilateralTradeYear(locationData, productData, {
+          location_id: country1,
+          partner_id: country2,
+          product_id: 0,
+          year: year,
+          export_value: 0,
+          import_value: 0,
+        })
+      );
+    })
+    .sort((a, b) => a.year - b.year);
 
   $: yScale = d3
     .scaleLinear()
@@ -89,24 +93,34 @@
   $: {
     let ctx = d3.path();
     if (tradeYearTotals.length > 0) {
-      ctx.moveTo(xScale(tradeYearTotals[0].year), yScale(tradeYearTotals[0].export_value))
+      ctx.moveTo(
+        xScale(tradeYearTotals[0].year),
+        yScale(tradeYearTotals[0].export_value)
+      );
     }
     tradeYearTotals.forEach((b) => {
-      ctx.lineTo(xScale(b.year), yScale(b.export_value))
-    })
+      ctx.lineTo(xScale(b.year), yScale(b.export_value));
+    });
     d3.select(country1Line).transition().attr("d", ctx.toString());
-  };
+  }
 
   $: {
     let ctx = d3.path();
     if (tradeYearTotals.length > 0) {
-      ctx.moveTo(xScale(tradeYearTotals[0].year), yScale(tradeYearTotals[0].import_value))
+      ctx.moveTo(
+        xScale(tradeYearTotals[0].year),
+        yScale(tradeYearTotals[0].import_value)
+      );
     }
     tradeYearTotals.forEach((b) => {
-      ctx.lineTo(xScale(b.year), yScale(b.import_value))
-    })
+      ctx.lineTo(xScale(b.year), yScale(b.import_value));
+    });
     d3.select(country2Line).transition().attr("d", ctx.toString());
-  };
+  }
+
+  function updateYear(aYear: number): () => void {
+    return () => year.set(aYear);
+  }
 </script>
 
 <div
@@ -116,19 +130,58 @@
   bind:clientHeight={height}
 >
   <svg {width} {height}>
-    <text class="chart-header" x={width/2} y={MARGIN-5} text-anchor="middle">Total Trade Over Time</text>
-    <g id="xAxis" bind:this={xAxisElem} transform={`translate(${0},${height - MARGIN})`}/>
-    <g id="yAis" bind:this={yAxisElem} transform={`translate(${MARGIN_LEFT},${0})`}/>
+    <text class="chart-header" x={width / 2} y={MARGIN - 5} text-anchor="middle"
+      >Total Trade Over Time</text
+    >
+    <rect
+      x={xScale($year) - 12}
+      y={35}
+      width="24"
+      height={height - 35 - MARGIN}
+      fill="rgba(0,0,0,0.2)"
+    />
+    <g
+      id="xAxis"
+      bind:this={xAxisElem}
+      transform={`translate(${0},${height - MARGIN})`}
+    />
+    <g
+      id="yAis"
+      bind:this={yAxisElem}
+      transform={`translate(${MARGIN_LEFT},${0})`}
+    />
     <g class="country1-group country-group">
-      <path bind:this={country1Line} fill="none" stroke={countryColorScale(country1)} stroke-width=2/>
+      <path
+        bind:this={country1Line}
+        fill="none"
+        stroke={countryColorScale(country1)}
+        stroke-width="2"
+      />
       {#each tradeYearTotals as bt (bt.year)}
-        <circle cx={xScale(bt.year)} cy={yScale(bt.export_value)} r=5 fill={countryColorScale(country1)}/>
+        <circle
+          cx={xScale(bt.year)}
+          cy={yScale(bt.export_value)}
+          r="5"
+          fill={countryColorScale(country1)}
+          on:click={updateYear(bt.year)}
+        />
       {/each}
     </g>
     <g class="country2-group country-group">
-      <path bind:this={country2Line} fill="none" stroke={countryColorScale(country2)} stroke-width=2/>
+      <path
+        bind:this={country2Line}
+        fill="none"
+        stroke={countryColorScale(country2)}
+        stroke-width="2"
+      />
       {#each tradeYearTotals as bt (bt.year)}
-        <circle cx={xScale(bt.year)} cy={yScale(bt.import_value)} r=5 fill={countryColorScale(country2)}/>
+        <circle
+          cx={xScale(bt.year)}
+          cy={yScale(bt.import_value)}
+          r="5"
+          fill={countryColorScale(country2)}
+          on:click={updateYear(bt.year)}
+        />
       {/each}
     </g>
   </svg>
