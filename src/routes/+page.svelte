@@ -8,7 +8,7 @@
   import BarChart from "../components/BarChart.svelte";
   import Range from "../components/Range.svelte";
   import TreeMap from "../components/TreeMap.svelte";
-  import {browser} from '$app/environment';
+  import { browser } from "$app/environment";
 
   const optionIdentifier = "id";
   const labelIdentifier = "name";
@@ -29,13 +29,15 @@
   const onSelectCountry2 = (e: any) => {
     let l = e.detail as Location;
     country2 = locationData!.get(l.id)!;
-  };  
+  };
 
-  let locationData: Map<number, Location>;
+  let locationData: Map<number, Location> = new Map();
 
   let countryColorScale: d3.ScaleOrdinal<number, string, never>;
 
-  let productData: Map<number, Product>;
+  let productColorScale: d3.ScaleOrdinal<string, string, never>;
+
+  let productData: Map<number, Product> = new Map();
   // maps reporting year to reporting country to partner country then list of trades
   let bilateralData: Map<
     number,
@@ -44,17 +46,18 @@
   let exportExtent: [number, number];
 
   $: bilateralDataForYear = bilateralData?.get(year) ?? new Map();
-  let drilldownBilateralForYear : Map<number, Map<number, BilateralTradeYear[]>>;
+  let drilldownBilateralForYear: Map<number, Map<number, BilateralTradeYear[]>>;
 
-  $ : {
-    if (browser) {
-    d3.csv(window.location.href + "data/hs2_" + year.toString() + ".csv").then((b) => 
-      drilldownBilateralForYear = d3.group(
-        b.map((v) => new BilateralTradeYear(locationData, productData, v)),
-        (v) => v.location_id,
-        (v) => v.partner_id
-      ));
-    }
+  $: if (browser) {
+    d3.csv(window.location.href + "data/hs2_" + year.toString() + ".csv").then(
+      (b) => {
+        drilldownBilateralForYear = d3.group(
+          b.map((v) => new BilateralTradeYear(locationData, productData, v)),
+          (v) => v.location_id,
+          (v) => v.partner_id
+        );
+      }
+    );
   }
 
   onMount(async () => {
@@ -86,6 +89,13 @@
 
       countryColorScale = d3.scaleOrdinal(
         locationData.keys(),
+        d3.schemeTableau10
+      );
+
+      productColorScale = d3.scaleOrdinal(
+        Array.from(productData)
+          .map(([id, p]) => p.level)
+          .filter((pl) => pl == "section"),
         d3.schemeTableau10
       );
     });
@@ -136,25 +146,40 @@
   <div id="container">
     <div id="content">
       <div class="viz-row">
-      <LineChart
-        {bilateralData}
-        country1={country1?.id ?? 0}
-        country2={country2?.id ?? 0}
-        {productData}
-        {locationData}
-        {countryColorScale}
-      />
-      <BarChart
-        {country1}
-        {country2}
-        {bilateralDataForYear}
-        {countryColorScale}
-      />
+        <LineChart
+          {bilateralData}
+          country1={country1?.id ?? 0}
+          country2={country2?.id ?? 0}
+          {productData}
+          {locationData}
+          {countryColorScale}
+        />
+        <BarChart
+          {productColorScale}
+          {country1}
+          {country2}
+          {bilateralDataForYear}
+          {countryColorScale}
+        />
       </div>
       <div class="viz-row">
-      <TreeMap {country1} {country2} {bilateralDataForYear} {drilldownBilateralForYear} valueField="export_value" />
-      <TreeMap {country2} {country1} {bilateralDataForYear} {drilldownBilateralForYear} valueField="import_value"/>
-      </div>  
+        <TreeMap
+          {productColorScale}
+          {country1}
+          {country2}
+          {bilateralDataForYear}
+          {drilldownBilateralForYear}
+          valueField="export_value"
+        />
+        <TreeMap
+          {productColorScale}
+          {country2}
+          {country1}
+          {bilateralDataForYear}
+          {drilldownBilateralForYear}
+          valueField="import_value"
+        />
+      </div>
     </div>
   </div>
 {:else}

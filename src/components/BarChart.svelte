@@ -9,6 +9,9 @@
     number,
     Map<number, BilateralTradeYear[]>
   >;
+
+  export let productColorScale: d3.ScaleOrdinal<string, string, never> | null;
+
   // export let locationData: Map<number, Location>;
   // export let productData: Map<number, Product>;
   export let countryColorScale: d3.ScaleOrdinal<number, string, never>;
@@ -109,6 +112,15 @@
       <g id="bar-content" transform={`translate(${0},${LABEL_HEIGHT})`}>
         {#each tradeData as bt, i (bt.product.name)}
           <g>
+            <rect
+              x="0"
+              y={i * ROW_HEIGHT + MARGIN_TOP + 2}
+              height={ROW_HEIGHT - 4}
+              width="6"
+              fill={productColorScale
+                ? productColorScale(bt.product.name)
+                : "white"}
+            />
             {#if i % 2 == 0}
               <rect
                 x="0"
