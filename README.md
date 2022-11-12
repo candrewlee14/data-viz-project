@@ -2,6 +2,8 @@
 
 *Authors: Andrew Lee, Franklin Yuan*
 
+![cover photo](./static/images/cover_photo.jpg)
+
 ## Process Book
 Google Doc [link](https://docs.google.com/document/d/1ym9aAKeQHBe1OTCFG1JeLSgSWCZnzHSTmUCR-wCfH_4/edit?usp=sharing).
 
