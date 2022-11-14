@@ -1,2 +1,4 @@
 node_modules/
-# .svelte-kit/
+# .svelte-kit/a
+build/
+.svelte-kit/output/
