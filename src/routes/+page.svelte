@@ -10,6 +10,7 @@
   import Range from "../components/Range.svelte";
   import TreeMap from "../components/TreeMap.svelte";
   import { browser } from "$app/environment";
+  import {base} from "$app/paths";
 
   const optionIdentifier = "id";
   const labelIdentifier = "name";
@@ -48,7 +49,7 @@
   let drilldownBilateralForYear: Map<number, Map<number, BilateralTradeYear[]>>;
 
   $: if (browser) {
-    d3.csv(window.location.href + "data/hs2_" + $year.toString() + ".csv").then(
+    d3.csv(`${base}/data/hs2_${$year.toString()}.csv`).then(
       (b) => {
         drilldownBilateralForYear = d3.group(
           b.map((v) => new BilateralTradeYear(locationData, productData, v)),
@@ -61,9 +62,9 @@
 
   onMount(async () => {
     Promise.all([
-      d3.csv(window.location.href + "data/location.csv"),
-      d3.csv(window.location.href + "data/hs_product.csv"),
-      d3.csv(window.location.href + "data/hs_2010_to_2020.csv"),
+      d3.csv(`${base}/data/location.csv`),
+      d3.csv(`${base}/data/hs_product.csv`),
+      d3.csv(`${base}/data/hs_2010_to_2020.csv`),
     ]).then(([l, p, b]) => {
       locationData = d3.index(
         l.map((v) => new Location(v)).filter((v) => v.level == "country"),

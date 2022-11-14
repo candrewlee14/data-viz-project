@@ -31,6 +31,7 @@ jobs:
       - name: Push
         uses: s0/git-publish-subdir-action@develop
         env:
+          PROJECT_PATH: data-viz-project
           REPO: self
           BRANCH: publish # The branch name where you want to push the assets
           FOLDER: build # The directory where your assets are generated
