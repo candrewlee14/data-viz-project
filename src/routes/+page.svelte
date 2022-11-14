@@ -146,37 +146,31 @@
     <div id="content">
       <div class="viz-row">
         <LineChart
-          {bilateralData}
-          country1={country1?.id ?? 0}
-          country2={country2?.id ?? 0}
-          {productData}
-          {locationData}
-          {countryColorScale}
+          data={{
+            bilateralData,
+            country1: country1?.id ?? 0,
+            country2: country2?.id ?? 0,
+            productData,
+            locationData,
+            countryColorScale,
+          }}
         />
         <BarChart
-          {productColorScale}
-          {country1}
-          {country2}
-          {bilateralDataForYear}
-          {countryColorScale}
+          data={{
+            productColorScale,
+            country1,
+            country2,
+            bilateralDataForYear,
+            countryColorScale,
+          }}
         />
       </div>
       <div class="viz-row">
         <TreeMap
-          {productColorScale}
-          {country1}
-          {country2}
-          {bilateralDataForYear}
-          {drilldownBilateralForYear}
-          valueField="export_value"
+          data={{productColorScale, country1, country2, drilldownBilateralForYear, valueField:"export_value"}}
         />
         <TreeMap
-          {productColorScale}
-          {country2}
-          {country1}
-          {bilateralDataForYear}
-          {drilldownBilateralForYear}
-          valueField="import_value"
+          data={{productColorScale, country1, country2, drilldownBilateralForYear, valueField:"import_value"}}
         />
       </div>
     </div>
@@ -297,7 +291,7 @@
     height: 140px;
 
     & .path {
-      stroke: hsl(210, 70, 75);
+      stroke: hsl(210deg, 70%, 75%);
       stroke-linecap: round;
       animation: dash 1.5s ease-in-out infinite;
     }

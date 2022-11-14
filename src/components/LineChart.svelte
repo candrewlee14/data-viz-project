@@ -6,15 +6,31 @@
     type Product,
     BilateralTradeYear,
   } from "../models/models";
-  export let bilateralData: Map<
-    number,
-    Map<number, Map<number, BilateralTradeYear[]>>
-  > | null;
-  export let locationData: Map<number, Location>;
-  export let productData: Map<number, Product>;
-  export let country1: number;
-  export let country2: number;
-  export let countryColorScale: d3.ScaleOrdinal<number, string, never>;
+
+  export let data: {
+    bilateralData: Map<
+      number,
+      Map<number, Map<number, BilateralTradeYear[]>>
+    > | null;
+    locationData: Map<number, Location>;
+    productData: Map<number, Product>;
+    country1: number;
+    country2: number;
+    countryColorScale: d3.ScaleOrdinal<number, string, never>;
+  };
+
+  let {bilateralData, locationData, productData, country1, country2, countryColorScale} = data;
+  $: ({bilateralData, locationData, productData, country1, country2, countryColorScale} = data);
+
+  // export let bilateralData: Map<
+  //   number,
+  //   Map<number, Map<number, BilateralTradeYear[]>>
+  // > | null;
+  // export let locationData: Map<number, Location>;
+  // export let productData: Map<number, Product>;
+  // export let country1: number;
+  // export let country2: number;
+  // export let countryColorScale: d3.ScaleOrdinal<number, string, never>;
 
   const MARGIN = 35;
   const MARGIN_TOP = 15;

@@ -5,18 +5,25 @@
   import { format, select } from "d3";
   import { fade, fly } from "svelte/transition";
 
-  export let bilateralDataForYear: Map<
-    number,
-    Map<number, BilateralTradeYear[]>
-  >;
+  export let data: {
+    bilateralDataForYear: Map<number, Map<number, BilateralTradeYear[]>>;
+    productColorScale: d3.ScaleOrdinal<string, string, never> | null;
+    countryColorScale: d3.ScaleOrdinal<number, string, never>;
+    country1: Location | null;
+    country2: Location | null;
+  };
 
-  export let productColorScale: d3.ScaleOrdinal<string, string, never> | null;
+  let {bilateralDataForYear, productColorScale, countryColorScale, country1, country2} = data;
+  $: ({bilateralDataForYear, productColorScale, countryColorScale, country1, country2} = data);
 
-  // export let locationData: Map<number, Location>;
-  // export let productData: Map<number, Product>;
-  export let countryColorScale: d3.ScaleOrdinal<number, string, never>;
-  export let country1: Location | null;
-  export let country2: Location | null;
+  // export let bilateralDataForYear: Map<
+  //   number,
+  //   Map<number, BilateralTradeYear[]>
+  // >;
+  // export let productColorScale: d3.ScaleOrdinal<string, string, never> | null;
+  // export let countryColorScale: d3.ScaleOrdinal<number, string, never>;
+  // export let country1: Location | null;
+  // export let country2: Location | null;
 
   let width = 800;
   let height = 500;

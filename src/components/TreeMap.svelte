@@ -4,21 +4,27 @@
   import { type Location, Product, BilateralTradeYear } from "../models/models";
 
   const formatter = (val: number) => d3.format("$.2s")(val).replace(/G/, "B");
-  
-  export let productColorScale: d3.ScaleOrdinal<string, string, never> | null;
 
-  export let bilateralDataForYear: Map<
-    number,
-    Map<number, BilateralTradeYear[]>
-  > | null;
-  export let drilldownBilateralForYear: Map<
-    number,
-    Map<number, BilateralTradeYear[]>
-  >;
+  export let data: {
+    country1: Location | null;
+    country2: Location | null;
+    valueField: string;
+    productColorScale: d3.ScaleOrdinal<string, string, never> | null;
+    drilldownBilateralForYear: Map<number, Map<number, BilateralTradeYear[]>>;
+  };
 
-  export let country1: Location | null;
-  export let country2: Location | null;
-  export let valueField: string;
+  let {
+    country1,
+    country2,
+    valueField,
+    productColorScale,
+    drilldownBilateralForYear,
+  } = data;
+  $: ({ drilldownBilateralForYear, valueField, productColorScale } = data);
+
+  // export let country1: Location | null;
+  // export let country2: Location | null;
+  // export let valueField: string;
 
   let width: number;
   let height: number;
@@ -96,7 +102,11 @@
         .attr("transform", (d: any) => `translate(${d.x0},${d.y0})`)
         .attr("width", (d: any) => d.x1 - d.x0)
         .attr("height", (d: any) => d.y1 - d.y0)
-        .attr("fill", (d) => productColorScale ? productColorScale(d.data?.product?.parent?.name ?? "") : "white");
+        .attr("fill", (d) =>
+          productColorScale
+            ? productColorScale(d.data?.product?.parent?.name ?? "")
+            : "white"
+        );
 
       d3.select(treemapElem)
         .selectAll(".label")
