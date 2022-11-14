@@ -20,7 +20,7 @@
     productColorScale,
     drilldownBilateralForYear,
   } = data;
-  $: ({ drilldownBilateralForYear, valueField, productColorScale } = data);
+  $: ({ drilldownBilateralForYear, valueField, productColorScale, country1, country2 } = data);
 
   // export let country1: Location | null;
   // export let country2: Location | null;
