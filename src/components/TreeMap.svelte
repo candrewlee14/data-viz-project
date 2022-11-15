@@ -1,6 +1,5 @@
 <script lang="ts">
   import * as d3 from "d3";
-  import { count, treemap } from "d3";
   import { type Location, Product, BilateralTradeYear } from "../models/models";
 
   const formatter = (val: number) => d3.format("$.2s")(val).replace(/G/, "B");
@@ -10,7 +9,11 @@
     country2: Location | null;
     valueField: string;
     productColorScale: d3.ScaleOrdinal<string, string, never> | null;
-    drilldownBilateralForYear: Map<number, Map<number, BilateralTradeYear[]>>;
+    drilldownBilateralForYear: Map<
+      number,
+      Map<number, BilateralTradeYear[]>
+    > | null;
+    loadingDrilldown: boolean
   };
 
   let {
@@ -19,20 +22,34 @@
     valueField,
     productColorScale,
     drilldownBilateralForYear,
+    loadingDrilldown,
   } = data;
-  $: ({ drilldownBilateralForYear, valueField, productColorScale, country1, country2 } = data);
+  $: ({
+    drilldownBilateralForYear,
+    valueField,
+    productColorScale,
+    country1,
+    country2,
+    loadingDrilldown,
+  } = data);
 
   // export let country1: Location | null;
   // export let country2: Location | null;
   // export let valueField: string;
 
+  interface LeafNode {
+    data: BilateralTradeYear;
+    x0: number;
+    x1: number;
+    y0: number;
+    y1: number;
+  }
+
   let width: number;
   let height: number;
   let treemapElem: SVGGElement;
 
-  // $: bilaterals =
-  //   bilateralDataForYear?.get(country1?.id ?? 0)?.get(country2?.id ?? 0) ??
-  //   null;
+  let leaves: LeafNode[] = new Array();
 
   $: bilaterals =
     drilldownBilateralForYear?.get(country1?.id ?? 0)?.get(country2?.id ?? 0) ??
@@ -69,8 +86,6 @@
           year: 0,
           export_value: 0,
           import_value: 0,
-          // export_value: d3.sum(value, (d) => d.export_value),
-          // import_value: d3.sum(value, (d) => d.import_value),
         });
         bl.product = new Product({
           product_id: key,
@@ -87,70 +102,81 @@
         .stratify()
         .id((d: any) => d.product?.id)
         .parentId((d: any) => d.product?.parent_id)(bls);
-      let leaves =
-        treemapRoot.leaves() as d3.HierarchyNode<BilateralTradeYear>[];
       treemapRoot.sum((d: any) => Math.max(0, d[valueField]));
       d3.treemap().tile(d3.treemapSquarify).size([width, height]).padding(2)(
         treemapRoot
       );
-      d3.select(treemapElem)
-        .selectAll(".leaf")
-        .data(leaves)
-        .join("rect")
-        .attr("class", "leaf")
-        .transition()
-        .attr("transform", (d: any) => `translate(${d.x0},${d.y0})`)
-        .attr("width", (d: any) => d.x1 - d.x0)
-        .attr("height", (d: any) => d.y1 - d.y0)
-        .attr("fill", (d) =>
-          productColorScale
-            ? productColorScale(d.data?.product?.parent?.name ?? "")
-            : "white"
-        );
-
-      d3.select(treemapElem)
-        .selectAll(".label")
-        .data(leaves.filter((d: any) => d.x1 - d.x0 > 40 && d.y1 - d.y0 > 10))
-        .join("text")
-        .attr("class", "label")
-        .transition()
-        .attr("transform", (d: any) => `translate(${d.x0 + 3},${d.y0 + 3})`)
-        .attr("alignment-baseline", "hanging")
-        .attr("fill", "white")
-        .attr("font-size", (d: any) => Math.max((d.x1 - d.x0) / 15, 8))
-        .text((d) => d.data?.product.name?.substring(0, 40) ?? "");
-      d3.select(treemapElem)
-        .selectAll(".label-num")
-        .data(leaves.filter((d: any) => d.x1 - d.x0 > 40 && d.y1 - d.y0 > 30))
-        .join("text")
-        .attr("class", "label-num")
-        .transition()
-        .attr(
-          "transform",
-          (d: any) =>
-            `translate(${d.x0 + 5},${
-              d.y0 + 1 + Math.max((d.x1 - d.x0) / 10, 8)
-            })`
-        )
-        .attr("alignment-baseline", "hanging")
-        .attr("fill", "white")
-        .attr("font-size", (d: any) => Math.max((d.x1 - d.x0) / 15, 8) - 1)
-        .attr("font-weight", 300)
-        .text((d: any) => formatter(d.data[valueField]) ?? "");
+      // @ts-ignore
+      leaves = treemapRoot.leaves() as LeafNode[];
     }
   }
 </script>
 
 <div class="viz-section" bind:clientWidth={width} bind:clientHeight={height}>
   <svg>
-    <g class="treemap" bind:this={treemapElem} />
+    <g class="treemap" bind:this={treemapElem}>
+      {#each leaves as leaf (leaf.data.product_id)}
+        <rect
+          class="leaf"
+          transform={`translate(${leaf.x0},${leaf?.y0})`}
+          width={leaf.x1 - leaf.x0}
+          height={leaf.y1 - leaf.y0}
+          fill={productColorScale
+            ? productColorScale(leaf.data?.product?.parent?.name ?? "")
+            : "white"}
+        />
+        {#if leaf.x1 - leaf.x0 > 40 && leaf.y1 - leaf.y0 > 10}
+          <text
+            class="label"
+            transform={`translate(${leaf.x0 + 3},${leaf.y0 + 3})`}
+            alignment-baseline="hanging"
+            font-size={Math.max((leaf.x1 - leaf.x0) / 15, 8)}
+          >
+            {leaf.data?.product.name?.substring(0, 40) ?? ""}
+          </text>
+        {/if}
+        {#if leaf.x1 - leaf.x0 > 40 && leaf.y1 - leaf.y0 > 30}
+          <text
+            class="label-num"
+            transform={`translate(${leaf.x0 + 5},${
+              leaf.y0 + 1 + Math.max((leaf.x1 - leaf.x0) / 10, 8)
+            })`}
+            alignment-baseline="hanging"
+            font-size={Math.max((leaf.x1 - leaf.x0) / 15, 8) - 1}
+            font-weight="300"
+          >
+            {formatter(
+              valueField === "export_value"
+                ? leaf.data.export_value
+                : leaf.data.import_value
+            )}
+          </text>
+        {/if}
+      {/each}
+    </g>
+    {#if (bilaterals?.length ?? 0) === 0}
+    <rect x="0" y="0" {width} {height} fill={loadingDrilldown ? "rgba(255,255,255, 0.9)" : "rgba(255,255,255,1)"}/>
+    <text
+      x={width / 2}
+      y={height / 2}
+      alignment-baseline="central"
+      text-anchor="middle">{loadingDrilldown ? "Loading..." : "No Data"}</text
+    >
+  {/if}
   </svg>
 </div>
 
-<style>
+<style lang="scss">
   svg {
     width: 100%;
     height: 100%;
     margin: 0;
   }
+  .treemap text {
+    transition: transform, font-size 0.4s ease;
+  }
+  .treemap rect {
+    transition: all 0.4s ease;
+  }
+
 </style>

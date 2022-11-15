@@ -11,19 +11,11 @@
     countryColorScale: d3.ScaleOrdinal<number, string, never>;
     country1: Location | null;
     country2: Location | null;
+    loadingDrilldown: boolean;
   };
 
-  let {bilateralDataForYear, productColorScale, countryColorScale, country1, country2} = data;
-  $: ({bilateralDataForYear, productColorScale, countryColorScale, country1, country2} = data);
-
-  // export let bilateralDataForYear: Map<
-  //   number,
-  //   Map<number, BilateralTradeYear[]>
-  // >;
-  // export let productColorScale: d3.ScaleOrdinal<string, string, never> | null;
-  // export let countryColorScale: d3.ScaleOrdinal<number, string, never>;
-  // export let country1: Location | null;
-  // export let country2: Location | null;
+  let {bilateralDataForYear, productColorScale, countryColorScale, country1, country2, loadingDrilldown} = data;
+  $: ({bilateralDataForYear, productColorScale, countryColorScale, country1, country2, loadingDrilldown} = data);
 
   let width = 800;
   let height = 500;
@@ -163,9 +155,8 @@
         {/each}
         <line
           id="midline"
-          x1={barScale(0)}
+          transform={`translate(${barScale(0)},0)`}
           y1={20}
-          x2={barScale(0)}
           y2={((tradeData?.length ?? 0) + 1) * ROW_HEIGHT}
           stroke="rgba(0,0,0,0.7)"
           stroke-width="1"
@@ -189,12 +180,19 @@
         text-anchor="middle">No valid data for this pair.</text
       >
     {/if}
+    {#if loadingDrilldown}
+      <rect x=0 y=0 width={width} height={height} fill="rgba(255,255,255,0.9)"/>
+      <text x={width/2} y={height/2} alignment-baseline="central" text-anchor="middle">Loading...</text>
+    {/if}
   </svg>
 </div>
 
 <style>
   #bar-chart {
     overflow-y: scroll;
+  }
+  #midline {
+    transition: transform 0.4s ease;
   }
   svg {
     width: 100%;
@@ -206,6 +204,6 @@
     font-weight: bold;
   }
   rect {
-    transition: fill, x, y, width 0.4s ease;
+    transition: all 0.4s ease;
   }
 </style>

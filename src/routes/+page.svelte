@@ -1,6 +1,6 @@
 <script lang="ts">
   import * as d3 from "d3";
-  import { year } from "../stores/store.js";
+  import { year } from "../stores/store";
   import { Location, Product, BilateralTradeYear } from "../models/models";
   import { onMount } from "svelte";
   import Select from "svelte-select";
@@ -46,9 +46,12 @@
   let exportExtent: [number, number];
 
   $: bilateralDataForYear = bilateralData?.get($year) ?? new Map();
-  let drilldownBilateralForYear: Map<number, Map<number, BilateralTradeYear[]>>;
+  let drilldownBilateralForYear: Map<number, Map<number, BilateralTradeYear[]>> | null;
+  let loadingDrilldown : boolean = false;
 
   $: if (browser) {
+    drilldownBilateralForYear = null;
+    loadingDrilldown = true;
     d3.csv(`${base}/data/hs2_${$year.toString()}.csv`).then(
       (b) => {
         drilldownBilateralForYear = d3.group(
@@ -56,6 +59,7 @@
           (v) => v.location_id,
           (v) => v.partner_id
         );
+        loadingDrilldown = false;
       }
     );
   }
@@ -158,6 +162,7 @@
         />
         <BarChart
           data={{
+            loadingDrilldown,
             productColorScale,
             country1,
             country2,
@@ -168,10 +173,10 @@
       </div>
       <div class="viz-row">
         <TreeMap
-          data={{productColorScale, country1, country2, drilldownBilateralForYear, valueField:"export_value"}}
+          data={{productColorScale, country1, country2, drilldownBilateralForYear, loadingDrilldown, valueField:"export_value"}}
         />
         <TreeMap
-          data={{productColorScale, country1, country2, drilldownBilateralForYear, valueField:"import_value"}}
+          data={{productColorScale, country1, country2, drilldownBilateralForYear, loadingDrilldown, valueField:"import_value"}}
         />
       </div>
     </div>
