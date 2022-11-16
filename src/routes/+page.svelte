@@ -10,7 +10,7 @@
   import Range from "../components/Range.svelte";
   import TreeMap from "../components/TreeMap.svelte";
   import { browser } from "$app/environment";
-  import {base} from "$app/paths";
+  import { base } from "$app/paths";
 
   const optionIdentifier = "id";
   const labelIdentifier = "name";
@@ -31,11 +31,11 @@
     country2 = locationData!.get(l.id)!;
   };
 
-  let locationData: Map<number, Location> = new Map();
-
   let countryColorScale: d3.ScaleOrdinal<number, string, never>;
 
   let productColorScale: d3.ScaleOrdinal<string, string, never>;
+
+  let locationData: Map<number, Location> = new Map();
 
   let productData: Map<number, Product> = new Map();
   // maps reporting year to reporting country to partner country then list of trades
@@ -46,22 +46,24 @@
   let exportExtent: [number, number];
 
   $: bilateralDataForYear = bilateralData?.get($year) ?? new Map();
-  let drilldownBilateralForYear: Map<number, Map<number, BilateralTradeYear[]>> | null;
-  let loadingDrilldown : boolean = false;
+  let drilldownBilateralForYear: Map<
+    number,
+    Map<number, BilateralTradeYear[]>
+  > | null;
+  let loadingDrilldown: boolean = false;
 
   $: if (browser) {
     drilldownBilateralForYear = null;
     loadingDrilldown = true;
-    d3.csv(`${base}/data/hs2_${$year.toString()}.csv`).then(
-      (b) => {
-        drilldownBilateralForYear = d3.group(
-          b.map((v) => new BilateralTradeYear(locationData, productData, v)),
-          (v) => v.location_id,
-          (v) => v.partner_id
-        );
-        loadingDrilldown = false;
-      }
-    );
+    d3.csv(`${base}/data/${country1?.code ?? "USA"}/${country1?.code ?? "USA"}_hs2_${$year.toString()}.csv`).then
+    ((b) => {
+      drilldownBilateralForYear = d3.group(
+        b.map((v) => new BilateralTradeYear(locationData, productData, v)),
+        (v) => v.location_id,
+        (v) => v.partner_id
+      );
+      loadingDrilldown = false;
+    });
   }
 
   onMount(async () => {
@@ -173,10 +175,24 @@
       </div>
       <div class="viz-row">
         <TreeMap
-          data={{productColorScale, country1, country2, drilldownBilateralForYear, loadingDrilldown, valueField:"export_value"}}
+          data={{
+            productColorScale,
+            country1,
+            country2,
+            drilldownBilateralForYear,
+            loadingDrilldown,
+            valueField: "export_value",
+          }}
         />
         <TreeMap
-          data={{productColorScale, country1, country2, drilldownBilateralForYear, loadingDrilldown, valueField:"import_value"}}
+          data={{
+            productColorScale,
+            country1,
+            country2,
+            drilldownBilateralForYear,
+            loadingDrilldown,
+            valueField: "import_value",
+          }}
         />
       </div>
     </div>
