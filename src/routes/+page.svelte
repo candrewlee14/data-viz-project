@@ -46,21 +46,21 @@
   let exportExtent: [number, number];
 
   $: bilateralDataForYear = bilateralData?.get($year) ?? new Map();
-  let drilldownBilateralForYear: Map<
+  let drilldownBilateralForCountry: Map<
     number,
     Map<number, BilateralTradeYear[]>
   > | null;
   let loadingDrilldown: boolean = false;
 
   $: if (browser) {
-    drilldownBilateralForYear = null;
+    drilldownBilateralForCountry = null;
     loadingDrilldown = true;
-    d3.csv(`${base}/data/${country1?.code ?? "USA"}/${country1?.code ?? "USA"}_hs2_${$year.toString()}.csv`).then
+    d3.csv(`${base}/data/${country1?.code ?? "USA"}/${country1?.code ?? "USA"}_hs2_2010_to_2020.csv`).then
     ((b) => {
-      drilldownBilateralForYear = d3.group(
+      drilldownBilateralForCountry = d3.group(
         b.map((v) => new BilateralTradeYear(locationData, productData, v)),
-        (v) => v.location_id,
-        (v) => v.partner_id
+        (v) => v.partner_id,
+        (v) => v.year
       );
       loadingDrilldown = false;
     });
@@ -179,7 +179,7 @@
             productColorScale,
             country1,
             country2,
-            drilldownBilateralForYear,
+            drilldownBilateral: drilldownBilateralForCountry,
             loadingDrilldown,
             valueField: "export_value",
           }}
@@ -189,7 +189,7 @@
             productColorScale,
             country1,
             country2,
-            drilldownBilateralForYear,
+            drilldownBilateral: drilldownBilateralForCountry,
             loadingDrilldown,
             valueField: "import_value",
           }}

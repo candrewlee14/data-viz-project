@@ -1,5 +1,6 @@
 <script lang="ts">
-  import * as d3 from "d3";
+  import * as d3 from "d3";  
+  import { year } from "../stores/store";
   import { type Location, Product, BilateralTradeYear } from "../models/models";
 
   const formatter = (val: number) => d3.format("$.2s")(val).replace(/G/, "B");
@@ -9,7 +10,7 @@
     country2: Location | null;
     valueField: string;
     productColorScale: d3.ScaleOrdinal<string, string, never> | null;
-    drilldownBilateralForYear: Map<
+    drilldownBilateral: Map<
       number,
       Map<number, BilateralTradeYear[]>
     > | null;
@@ -21,11 +22,11 @@
     country2,
     valueField,
     productColorScale,
-    drilldownBilateralForYear,
+    drilldownBilateral,
     loadingDrilldown,
   } = data;
   $: ({
-    drilldownBilateralForYear,
+    drilldownBilateral,
     valueField,
     productColorScale,
     country1,
@@ -52,7 +53,7 @@
   let leaves: LeafNode[] = new Array();
 
   $: bilaterals =
-    drilldownBilateralForYear?.get(country1?.id ?? 0)?.get(country2?.id ?? 0) ??
+    drilldownBilateral?.get(country2?.id ?? 0)?.get($year ?? 0) ??
     null;
 
   $: if (bilaterals && bilaterals.length > 0) {
@@ -103,7 +104,7 @@
         .id((d: any) => d.product?.id)
         .parentId((d: any) => d.product?.parent_id)(bls);
       treemapRoot.sum((d: any) => Math.max(0, d[valueField]));
-      d3.treemap().tile(d3.treemapSquarify).size([width, height]).padding(2)(
+      d3.treemap().tile(d3.treemapBinary).size([width, height]).padding(2)(
         treemapRoot
       );
       // @ts-ignore

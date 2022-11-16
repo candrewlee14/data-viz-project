@@ -4,7 +4,7 @@ import argparse
 import os
 
 def main():
-    parser = argparse.ArgumentParser(description='Convert dta to csv files')
+    parser = argparse.ArgumentParser(description='Spit data to separate CVS files by location_id')
 
     parser.add_argument('-i','--input', help='Input CSV filename (not path)', required=True)
     args = parser.parse_args()

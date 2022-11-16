@@ -3,7 +3,7 @@ import pandas as pd
 import argparse
 
 def main():
-    parser = argparse.ArgumentParser(description='Convert dta to csv files')
+    parser = argparse.ArgumentParser(description='Convert to csv files')
 
     parser.add_argument('-i','--input', help='Input file', required=True)
     parser.add_argument('-y','--year', help='Year to date to keep', required=True)
