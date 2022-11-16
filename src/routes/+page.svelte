@@ -109,8 +109,8 @@
 </script>
 
 <div class="heading">
-  <h1>Bilateral Trade Data</h1>
-  <h2>Visualization by Andrew Lee and Franklin Yuan</h2>
+  <h1>Commerce Among Nations</h1>
+  <h2>A Bilateral Trade Data Visualization by Andrew Lee & Franklin Yuan</h2>
 </div>
 {#if locationData && bilateralData && productData && countryColorScale}
   <div class="selectors">

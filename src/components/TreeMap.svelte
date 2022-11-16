@@ -104,7 +104,7 @@
         .id((d: any) => d.product?.id)
         .parentId((d: any) => d.product?.parent_id)(bls);
       treemapRoot.sum((d: any) => Math.max(0, d[valueField]));
-      d3.treemap().tile(d3.treemapBinary).size([width, height]).padding(2)(
+      d3.treemap().tile(d3.treemapResquarify).size([width, height]).padding(2)(
         treemapRoot
       );
       // @ts-ignore

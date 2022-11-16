@@ -1,4 +1,6 @@
-# Visualizing Bilateral Trade Between Countries
+# Commerce Among Nations
+
+A Bilateral Trade Data Visualization
 
 *Authors: Andrew Lee, Franklin Yuan*
 
