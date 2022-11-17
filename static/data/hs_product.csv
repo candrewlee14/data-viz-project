@@ -10,7 +10,7 @@
 7,7,7,Machinery,section, -1
 8,8,8,Electronics,section, -1
 9,9,9,Other,section, -1
-10,10,services,Services,section,
+10,10,services,Services,section,-1
 11,100,01,Live animals,2digit,1.0
 12,101,02,Meat,2digit,1.0
 13,102,03,Fish,2digit,1.0

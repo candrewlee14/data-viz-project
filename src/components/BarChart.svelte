@@ -6,6 +6,9 @@
   import { years } from "../global/store";
   import { fade, fly } from "svelte/transition";
   import { flip } from "svelte/animate";
+  import { format, schemeDark2, select, tsv } from "d3";
+  import *  as ct from "../global/constants";
+  import { Tooltip } from "../models/tooltip";
 
   export let data: {
     productData: Map<number, Product>;
@@ -53,7 +56,7 @@
   } = data);
 
   let width = 800;
-  let height = 500;
+  let height = 550;
   let axisElem: SVGGElement;
 
   const LABEL_HEIGHT = 40;
@@ -63,7 +66,9 @@
   const MARGIN_TOP = 30;
   const PRODUCT_WIDTH = 100;
   const ROW_SPACE = 4;
-  const formatter = (val: number) => d3.format("$.2s")(val).replace(/G/, "B");
+  const formatter = (val: number) => d3.format("$.3s")(val).replace(/G/, "B");
+
+  // The bar chart needs to include all of the years
 
   $: innerDataByYear = bilateralData
     ?.get(country1?.id ?? 0)
@@ -152,6 +157,14 @@
       .tickFormat((v) => formatter(Math.abs(v as number)));
     d3.select(axisElem).transition().call(axis);
   }
+
+  let barChartTooltip: Tooltip = new Tooltip({
+    width: width,
+    height: 350,
+    groupId: "#bar-chart-tooltip",
+    countryColorScale: countryColorScale,
+    proudctColorScale: null,
+  })
 </script>
 
 <div
@@ -284,6 +297,10 @@
               height={ROW_HEIGHT - ROW_SPACE}
               width={barScale(0) - barScale(-bt.export_value)}
               fill={countryColorScale(bt.location_id)}
+              on:focus
+              on:mouseover={barChartTooltip.mouseOverBarChart(bt, true, $years)}
+              on:mousemove={barChartTooltip.mouseMove($years)}
+              on:mouseleave={barChartTooltip.mouseLeave()}
             />
             <rect
               class="country2-bar"
@@ -292,6 +309,10 @@
               height={ROW_HEIGHT - ROW_SPACE}
               width={barScale(bt.import_value) - barScale(0)}
               fill={countryColorScale(bt.partner_id)}
+              on:focus
+              on:mouseover={barChartTooltip.mouseOverBarChart(bt, false, $years)}
+              on:mousemove={barChartTooltip.mouseMove($years)}
+              on:mouseleave={barChartTooltip.mouseLeave()}
             />
           </g>
         {/each}
@@ -336,6 +357,7 @@
         />
         <g id="axis" bind:this={axisElem} />
       </g>
+      <g id="bar-chart-tooltip" class="tooltip" />
     {:else}
       <text
         in:fade

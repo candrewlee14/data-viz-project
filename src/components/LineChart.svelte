@@ -7,6 +7,7 @@
     BilateralTradeYear,
   } from "../models/models";
   import type { BrushSelection } from "d3";
+  import { Tooltip } from "../models/tooltip";
 
   export let data: {
     bilateralData: Map<
@@ -51,7 +52,17 @@
   let country1Line: SVGPathElement;
   let country2Line: SVGPathElement;
   let isBrushing: boolean = false;
+  let sectorStrings: Array<string>;
+  
+  let lineChartTooltip: Tooltip = new Tooltip({
+    width: width,
+    height: height,
+    groupId: "#line-chart-tooltip",
+    countryColorScale: countryColorScale,
+    proudctColorScale: null,
+  })
 
+  // The line chart needs to include all of the sector information.
   $: {
     let brush = d3.brushX().on("start brush end", (e) => {
         if (e?.selection === null || e?.selection[1] - e?.selection[0] < 5) {
@@ -154,6 +165,10 @@
     d3.select(country2Line).transition().attr("d", ctx.toString());
   }
 
+  $: sectorStrings = $sectors.size == 0
+          ? ["All"]
+          : Array.from($sectors.values()).map(productId => productData?.get(productId)?.name ?? "something");
+
   function updateYear(aYear: number): () => void {
     return () => years.set([aYear]);
   }
@@ -208,6 +223,12 @@
           stroke-width=2
           on:click={updateYear(bt.year)}
           on:keydown={() => {}}
+          on:keypress
+          on:click={updateYear(bt.year)}
+          on:focus
+          on:blur
+          on:mouseover={lineChartTooltip.mouseOverLineChart(bt, true, sectorStrings)}
+          on:mouseout={lineChartTooltip.mouseLeave()}
         />
       {/each}
     </g>
@@ -228,9 +249,16 @@
           stroke-width=2
           on:click={updateYear(bt.year)}
           on:keydown={() => {}}
+          on:keypress
+          on:click={updateYear(bt.year)}
+          on:focus
+          on:blur
+          on:mouseover={lineChartTooltip.mouseOverLineChart(bt, false, sectorStrings)}
+          on:mouseout={lineChartTooltip.mouseLeave()}
         />
       {/each}
     </g>
+    <g id="line-chart-tooltip" class="tooltip" />
   </svg>
   <!-- <p>{formatter(tradeYearTotals.export_value ?? 0)}</p>
   <p>{formatter(tradeYearTotals.import_value ?? 0)}</p>

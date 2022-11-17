@@ -143,7 +143,7 @@
       src={getFlagUrl(country1?.code ?? "ATA")}
     />
     <div class="dropdown">
-      <span>Country 1</span>
+      <span>Country</span>
       <Select
         {optionIdentifier}
         {labelIdentifier}
@@ -153,7 +153,7 @@
       />
     </div>
     <div class="dropdown">
-      <span>Country 2</span>
+      <span>Partner</span>
       <Select
         {optionIdentifier}
         {labelIdentifier}
@@ -296,6 +296,21 @@
     grid-column-start: 0;
     grid-column-end: 2;
   }
+  :global(.tooltip > rect) {
+    fill: #f2f2f2;
+    opacity: 0.6;
+    rx: 15px;
+    ry: 15px;
+	}
+
+  :global(.tooltip > text) {
+    font-size: 20px;
+  }
+  :global(.tooltip > text.title) {
+    font-size: 25px;
+    font-weight: bold;
+  }
+
   .selectors {
     width: 100%;
     display: flex;
