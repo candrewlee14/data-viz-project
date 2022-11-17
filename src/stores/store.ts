@@ -1,3 +1,3 @@
-import { writable } from "svelte/store";
+import { writable, type Writable } from "svelte/store";
 
-export const year = writable(2020);
+export const years : Writable<Array<number>> = writable([2020]);

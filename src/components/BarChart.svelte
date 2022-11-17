@@ -1,12 +1,15 @@
 <script lang="ts">
   import * as d3 from "d3";
-  import type { Location, Product, BilateralTradeYear } from "../models/models";
+  import { Location, Product, BilateralTradeYear } from "../models/models";
   import { onMount } from "svelte";
   import { format, select } from "d3";
+  import {years} from '../stores/store';
   import { fade, fly } from "svelte/transition";
 
   export let data: {
-    bilateralDataForYear: Map<number, Map<number, BilateralTradeYear[]>>;
+    productData: Map<number, Product>,
+    locationData: Map<number, Location>,
+    bilateralData: Map<number, Map<number, Map<number, BilateralTradeYear[]>>>;
     productColorScale: d3.ScaleOrdinal<string, string, never> | null;
     countryColorScale: d3.ScaleOrdinal<number, string, never>;
     country1: Location | null;
@@ -14,8 +17,8 @@
     loadingDrilldown: boolean;
   };
 
-  let {bilateralDataForYear, productColorScale, countryColorScale, country1, country2, loadingDrilldown} = data;
-  $: ({bilateralDataForYear, productColorScale, countryColorScale, country1, country2, loadingDrilldown} = data);
+  let {bilateralData, productColorScale, countryColorScale, country1, country2, loadingDrilldown, productData, locationData} = data;
+  $: ({bilateralData, productColorScale, countryColorScale, country1, country2, loadingDrilldown, productData, locationData} = data);
 
   let width = 800;
   let height = 500;
@@ -30,21 +33,39 @@
   const ROW_SPACE = 4;
   const formatter = (val: number) => d3.format("$.2s")(val).replace(/G/, "B");
 
-  $: tradeData = bilateralDataForYear
-    .get(country1?.id ?? 0)
-    ?.get(country2?.id ?? 0)
-    ?.filter((v) => v.product.level == "section");
+  $: innerDataByYear = bilateralData?.get(country1?.id ?? 0)
+    ?.get(country2?.id ?? 0);
+
+  $: allInnerDataUnagg = ($years.map((year) => innerDataByYear?.get(year) ?? new Array()).flat() as BilateralTradeYear[]);
+
+  $: innerDataAll = Array.from(d3.rollup(allInnerDataUnagg,
+    (v) => v.reduce(
+            (acc, b) => {
+              acc.export_value += b.export_value;
+              acc.import_value += b.import_value;
+              return acc;
+            },
+            new BilateralTradeYear(locationData, productData, {
+              location_id: country1?.id ?? 0,
+              partner_id: country2?.id ?? 0,
+              product_id: v[0].product_id,
+              year: 0,
+              export_value: 0,
+              import_value: 0,
+            })),
+    (d) => d.product_id,
+  ).values());
+
+  $: tradeData = innerDataAll.filter((v) => v.product.level == "section");
 
   // @ts-ignore
   $: maxExport = d3.max(
-    bilateralDataForYear.get(country1?.id ?? 0)?.get(country2?.id ?? 0) ??
-      new Array(),
+    innerDataAll,
     (v: BilateralTradeYear) => v.export_value
   ) as number;
 
   $: maxImport = d3.max(
-    bilateralDataForYear.get(country1?.id ?? 0)?.get(country2?.id ?? 0) ??
-      new Array(),
+    innerDataAll,
     (v: BilateralTradeYear) => v.import_value
   ) as number;
 

@@ -1,6 +1,6 @@
 <script lang="ts">
   import * as d3 from "d3";
-  import { year } from "../stores/store";
+  import { years } from "../stores/store";
   import { Location, Product, BilateralTradeYear } from "../models/models";
   import { onMount } from "svelte";
   import Select from "svelte-select";
@@ -31,6 +31,8 @@
     country2 = locationData!.get(l.id)!;
   };
 
+  let allTrades: BilateralTradeYear[] | null;
+
   let countryColorScale: d3.ScaleOrdinal<number, string, never>;
 
   let productColorScale: d3.ScaleOrdinal<string, string, never>;
@@ -38,14 +40,22 @@
   let locationData: Map<number, Location> = new Map();
 
   let productData: Map<number, Product> = new Map();
-  // maps reporting year to reporting country to partner country then list of trades
+  // maps reporting country to partner country by year then list of trades
   let bilateralData: Map<
     number,
     Map<number, Map<number, BilateralTradeYear[]>>
   >;
   let exportExtent: [number, number];
 
-  $: bilateralDataForYear = bilateralData?.get($year) ?? new Map();
+  // $: bilateralDataForYear = bilateralData?.get($year) ?? new Map();
+
+  // reduce bilateralData
+
+  // $: bilateralDataForYear = d3.rollup(allTrades?.filter((d) => $years.includes(d.year))
+  //   (d) => 
+  // );
+
+  // maps by partner id then by year
   let drilldownBilateralForCountry: Map<
     number,
     Map<number, BilateralTradeYear[]>
@@ -55,8 +65,11 @@
   $: if (browser) {
     drilldownBilateralForCountry = null;
     loadingDrilldown = true;
-    d3.csv(`${base}/data/${country1?.code ?? "USA"}/${country1?.code ?? "USA"}_hs2_2010_to_2020.csv`).then
-    ((b) => {
+    d3.csv(
+      `${base}/data/${country1?.code ?? "USA"}/${
+        country1?.code ?? "USA"
+      }_hs2_2010_to_2020.csv`
+    ).then((b) => {
       drilldownBilateralForCountry = d3.group(
         b.map((v) => new BilateralTradeYear(locationData, productData, v)),
         (v) => v.partner_id,
@@ -84,12 +97,18 @@
         v.parent = productData.get(v.parent_id) ?? null;
         productData.set(k, v);
       }
-      bilateralData = d3.group(
-        b.map((v) => new BilateralTradeYear(locationData, productData, v)),
-        (v) => v.year,
-        (v) => v.location_id,
-        (v) => v.partner_id
+      let bls = b.map(
+        (v) => new BilateralTradeYear(locationData, productData, v)
       );
+
+      bilateralData = d3.group(
+        bls,
+        (v) => v.location_id,
+        (v) => v.partner_id,
+        (v) => v.year,
+      );
+
+      allTrades = bls;
       // @ts-ignore
       exportExtent = d3.extent(b, (v) => +v["export_value"]!);
 
@@ -155,8 +174,8 @@
         <LineChart
           data={{
             bilateralData,
-            country1: country1?.id ?? 0,
-            country2: country2?.id ?? 0,
+            country1_id: country1?.id ?? 0,
+            country2_id: country2?.id ?? 0,
             productData,
             locationData,
             countryColorScale,
@@ -164,11 +183,13 @@
         />
         <BarChart
           data={{
+            productData,
+            locationData,
+            bilateralData,
             loadingDrilldown,
             productColorScale,
             country1,
             country2,
-            bilateralDataForYear,
             countryColorScale,
           }}
         />
@@ -176,6 +197,8 @@
       <div class="viz-row">
         <TreeMap
           data={{
+            locationData,
+            productData,
             productColorScale,
             country1,
             country2,
@@ -186,6 +209,8 @@
         />
         <TreeMap
           data={{
+            locationData,
+            productData,
             productColorScale,
             country1,
             country2,

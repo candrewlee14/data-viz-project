@@ -1,11 +1,12 @@
 <script lang="ts">
   import * as d3 from "d3";
-  import { year } from "../stores/store";
+  import { years } from "../stores/store";
   import {
     type Location,
     type Product,
     BilateralTradeYear,
   } from "../models/models";
+  import type { BrushSelection } from "d3";
 
   export let data: {
     bilateralData: Map<
@@ -14,23 +15,27 @@
     > | null;
     locationData: Map<number, Location>;
     productData: Map<number, Product>;
-    country1: number;
-    country2: number;
+    country1_id: number;
+    country2_id: number;
     countryColorScale: d3.ScaleOrdinal<number, string, never>;
   };
 
-  let {bilateralData, locationData, productData, country1, country2, countryColorScale} = data;
-  $: ({bilateralData, locationData, productData, country1, country2, countryColorScale} = data);
-
-  // export let bilateralData: Map<
-  //   number,
-  //   Map<number, Map<number, BilateralTradeYear[]>>
-  // > | null;
-  // export let locationData: Map<number, Location>;
-  // export let productData: Map<number, Product>;
-  // export let country1: number;
-  // export let country2: number;
-  // export let countryColorScale: d3.ScaleOrdinal<number, string, never>;
+  let {
+    bilateralData,
+    locationData,
+    productData,
+    country1_id: country1,
+    country2_id: country2,
+    countryColorScale,
+  } = data;
+  $: ({
+    bilateralData,
+    locationData,
+    productData,
+    country1_id: country1,
+    country2_id: country2,
+    countryColorScale,
+  } = data);
 
   const MARGIN = 35;
   const MARGIN_TOP = 15;
@@ -40,48 +45,59 @@
   let height = 400;
   const formatter = (val: number) => d3.format("$.2s")(val).replace(/G/, "B");
 
-  // let tradeYearTotals: BilateralTradeYear[] = new Array();
   let xAxisElem: SVGGElement;
   let yAxisElem: SVGGElement;
+  let brushElem: SVGGElement;
   let country1Line: SVGPathElement;
   let country2Line: SVGPathElement;
+  let isBrushing: boolean = false;
 
-  $: tradeYearTotals = Array.from(bilateralData?.entries() ?? new Array())
-    .map((data) => {
-      // @ts-ignore
-      let year: number = data[0];
-      // @ts-ignore
-      let v: Map<number, Map<number, BilateralTradeYear[]>> = data[1];
-      return (
-        v
-          .get(country1)
-          ?.get(country2)
-          ?.reduce(
-            (acc, b) => {
-              acc.export_value += b.export_value;
-              acc.import_value += b.import_value;
-              return acc;
-            },
-            new BilateralTradeYear(locationData, productData, {
-              location_id: country1,
-              partner_id: country2,
-              product_id: 0,
-              year: year,
-              export_value: 0,
-              import_value: 0,
-            })
-          ) ??
-        new BilateralTradeYear(locationData, productData, {
-          location_id: country1,
-          partner_id: country2,
-          product_id: 0,
-          year: year,
-          export_value: 0,
-          import_value: 0,
-        })
-      );
-    })
-    .sort((a, b) => a.year - b.year);
+  $: {
+    let brush = d3.brushX().on("start brush end", (e) => {
+        if (e?.selection === null || e?.selection[1] - e?.selection[0] < 5) {
+          years.set([2020]);
+          isBrushing = false;
+        } else {
+          isBrushing = true;
+          let selection = e.selection as BrushSelection;
+          const x0 = selection[0] as number;
+          const x1 = selection[1] as number;
+          let firstYear = Math.ceil(xScale.invert(x0));
+          let lastYear = Math.floor(xScale.invert(x1));
+          let selYears = [];
+          for (let i = firstYear; i <= lastYear; i++) {
+            selYears.push(i);
+          }
+          years.set(selYears);
+        }
+      });
+    d3.select(brushElem).call(brush);
+  }
+  $: tradeYearTotals = Array.from(
+    bilateralData?.get(country1)?.get(country2)?.entries() ?? new Array()
+  ).map((d) => {
+    // @ts-ignore
+    let year: number = d[0];
+    // @ts-ignore
+    let bls: BilateralTradeYear[] = d[1];
+    return bls.reduce(
+      (acc, b) => {
+        acc.export_value += b.export_value;
+        acc.import_value += b.import_value;
+        return acc;
+      },
+      new BilateralTradeYear(locationData, productData, {
+        location_id: country1,
+        partner_id: country2,
+        product_id: 0,
+        year: year,
+        export_value: 0,
+        import_value: 0,
+      })
+    );
+  }).sort((a,b) => a.year - b.year);
+ 
+ $: console.log(tradeYearTotals);
 
   $: yScale = d3
     .scaleLinear()
@@ -109,6 +125,7 @@
   $: {
     let ctx = d3.path();
     if (tradeYearTotals.length > 0) {
+      tradeYearTotals.sort((b) => b.year);
       ctx.moveTo(
         xScale(tradeYearTotals[0].year),
         yScale(tradeYearTotals[0].export_value)
@@ -135,7 +152,7 @@
   }
 
   function updateYear(aYear: number): () => void {
-    return () => year.set(aYear);
+    return () => years.set([aYear]);
   }
 </script>
 
@@ -149,13 +166,17 @@
     <text class="chart-header" x={width / 2} y={MARGIN - 5} text-anchor="middle"
       >Total Trade Over Time</text
     >
-    <rect
-      x={xScale($year) - 12}
-      y={35}
-      width="24"
-      height={height - 35 - MARGIN}
-      fill="rgba(0,0,0,0.2)"
-    />
+    <g class="brush" bind:this={brushElem} />
+    {#if !isBrushing}
+      <rect
+        class="timebar"
+        x={xScale($years[0]) - 12}
+        y={35}
+        width="24"
+        height={height - 35 - MARGIN}
+        fill="rgba(0,0,0,0.2)"
+      />
+    {/if}
     <g
       id="xAxis"
       bind:this={xAxisElem}
@@ -175,6 +196,7 @@
       />
       {#each tradeYearTotals as bt (bt.year)}
         <circle
+          class="circ1"
           cx={xScale(bt.year)}
           cy={yScale(bt.export_value)}
           r="5"

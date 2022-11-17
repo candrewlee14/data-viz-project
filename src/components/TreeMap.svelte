@@ -1,6 +1,6 @@
 <script lang="ts">
-  import * as d3 from "d3";  
-  import { year } from "../stores/store";
+  import * as d3 from "d3";
+  import { years } from "../stores/store";
   import { type Location, Product, BilateralTradeYear } from "../models/models";
 
   const formatter = (val: number) => d3.format("$.2s")(val).replace(/G/, "B");
@@ -10,11 +10,10 @@
     country2: Location | null;
     valueField: string;
     productColorScale: d3.ScaleOrdinal<string, string, never> | null;
-    drilldownBilateral: Map<
-      number,
-      Map<number, BilateralTradeYear[]>
-    > | null;
-    loadingDrilldown: boolean
+    drilldownBilateral: Map<number, Map<number, BilateralTradeYear[]>> | null;
+    locationData: Map<number, Location>,
+    productData: Map<number, Product>,
+    loadingDrilldown: boolean;
   };
 
   let {
@@ -24,6 +23,8 @@
     productColorScale,
     drilldownBilateral,
     loadingDrilldown,
+    locationData,
+    productData,
   } = data;
   $: ({
     drilldownBilateral,
@@ -32,7 +33,34 @@
     country1,
     country2,
     loadingDrilldown,
+    locationData,
+    productData,
   } = data);
+
+  $: innerDrilldownBilateral = drilldownBilateral?.get(country2?.id ?? 0);
+
+  $: allInnerDataUnagg = ($years.map((year) => innerDrilldownBilateral?.get(year) ?? new Array()).flat() as BilateralTradeYear[]);
+
+
+  $: bilaterals = Array.from(d3.rollup(allInnerDataUnagg,
+    (v) => v.reduce(
+            (acc, b) => {
+              acc.export_value += b.export_value;
+              acc.import_value += b.import_value;
+              return acc;
+            },
+            new BilateralTradeYear(locationData, productData, {
+              location_id: country1,
+              partner_id: country2,
+              product_id: v[0].product_id,
+              year: 0,
+              export_value: 0,
+              import_value: 0,
+            })),
+    (d) => d.product_id,
+  ).values());
+
+
 
   // export let country1: Location | null;
   // export let country2: Location | null;
@@ -46,15 +74,11 @@
     y1: number;
   }
 
-  let width: number;
-  let height: number;
+  let width: number = 0;
+  let height: number = 0;
   let treemapElem: SVGGElement;
 
   let leaves: LeafNode[] = new Array();
-
-  $: bilaterals =
-    drilldownBilateral?.get(country2?.id ?? 0)?.get($year ?? 0) ??
-    null;
 
   $: if (bilaterals && bilaterals.length > 0) {
     let bl = new BilateralTradeYear(new Map(), new Map(), {
@@ -117,53 +141,63 @@
   <svg>
     <g class="treemap" bind:this={treemapElem}>
       {#each leaves as leaf (leaf.data.product_id)}
-        <rect
-          class="leaf"
-          transform={`translate(${leaf.x0},${leaf?.y0})`}
-          width={leaf.x1 - leaf.x0}
-          height={leaf.y1 - leaf.y0}
-          fill={productColorScale
-            ? productColorScale(leaf.data?.product?.parent?.name ?? "")
-            : "white"}
-        />
-        {#if leaf.x1 - leaf.x0 > 40 && leaf.y1 - leaf.y0 > 10}
-          <text
-            class="label"
-            transform={`translate(${leaf.x0 + 3},${leaf.y0 + 3})`}
-            alignment-baseline="hanging"
-            font-size={Math.max((leaf.x1 - leaf.x0) / 15, 8)}
-          >
-            {leaf.data?.product.name?.substring(0, 40) ?? ""}
-          </text>
-        {/if}
-        {#if leaf.x1 - leaf.x0 > 40 && leaf.y1 - leaf.y0 > 30}
-          <text
-            class="label-num"
-            transform={`translate(${leaf.x0 + 5},${
-              leaf.y0 + 1 + Math.max((leaf.x1 - leaf.x0) / 10, 8)
-            })`}
-            alignment-baseline="hanging"
-            font-size={Math.max((leaf.x1 - leaf.x0) / 15, 8) - 1}
-            font-weight="300"
-          >
-            {formatter(
-              valueField === "export_value"
-                ? leaf.data.export_value
-                : leaf.data.import_value
-            )}
-          </text>
+        {#if $years.length > 0 && leaf.x1 != NaN && leaf.x0 != NaN && leaf.y0 != NaN && leaf.y1 != NaN}
+          <rect
+            class="leaf"
+            transform={`translate(${leaf.x0},${leaf.y0})`}
+            width={leaf.x1 - leaf.x0}
+            height={leaf.y1 - leaf.y0}
+            fill={productColorScale
+              ? productColorScale(leaf.data?.product?.parent?.name ?? "")
+              : "white"}
+          />
+          {#if leaf.x1 - leaf.x0 > 40 && leaf.y1 - leaf.y0 > 10}
+            <text
+              class="label"
+              transform={`translate(${leaf.x0 + 3},${leaf.y0 + 3})`}
+              alignment-baseline="hanging"
+              font-size={Math.max((leaf.x1 - leaf.x0) / 15, 8)}
+            >
+              {leaf.data?.product.name?.substring(0, 40) ?? ""}
+            </text>
+          {/if}
+          {#if leaf.x1 - leaf.x0 > 40 && leaf.y1 - leaf.y0 > 30}
+            <text
+              class="label-num"
+              transform={`translate(${leaf.x0 + 5},${
+                leaf.y0 + 1 + Math.max((leaf.x1 - leaf.x0) / 10, 8)
+              })`}
+              alignment-baseline="hanging"
+              font-size={Math.max((leaf.x1 - leaf.x0) / 15, 8) - 1}
+              font-weight="300"
+            >
+              {formatter(
+                valueField === "export_value"
+                  ? leaf.data.export_value
+                  : leaf.data.import_value
+              )}
+            </text>
+          {/if}
         {/if}
       {/each}
     </g>
     {#if (bilaterals?.length ?? 0) === 0}
-    <rect x="0" y="0" {width} {height} fill={loadingDrilldown ? "rgba(255,255,255, 0.9)" : "rgba(255,255,255,1)"}/>
-    <text
-      x={width / 2}
-      y={height / 2}
-      alignment-baseline="central"
-      text-anchor="middle">{loadingDrilldown ? "Loading..." : "No Data"}</text
-    >
-  {/if}
+      <rect
+        x="0"
+        y="0"
+        {width}
+        {height}
+        fill={loadingDrilldown
+          ? "rgba(255,255,255, 0.9)"
+          : "rgba(255,255,255,1)"}
+      />
+      <text
+        x={width / 2}
+        y={height / 2}
+        alignment-baseline="central"
+        text-anchor="middle">{loadingDrilldown ? "Loading..." : "No Data"}</text
+      >
+    {/if}
   </svg>
 </div>
 
@@ -174,10 +208,9 @@
     margin: 0;
   }
   .treemap text {
-    transition: transform, font-size 0.4s ease;
+    transition: all 0.4s ease;
   }
   .treemap rect {
     transition: all 0.4s ease;
   }
-
 </style>
