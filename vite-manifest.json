@@ -1,11 +1,11 @@
 {
   "node_modules/@sveltejs/kit/src/runtime/client/start.js": {
-    "file": "_app/immutable/start-024c8bd8.js",
+    "file": "_app/immutable/start-6597ddd0.js",
     "src": "node_modules/@sveltejs/kit/src/runtime/client/start.js",
     "isEntry": true,
     "imports": [
       "_index-dec2a072.js",
-      "_singletons-5e4cacfd.js",
+      "_singletons-0ab1882d.js",
       "_paths-f8804f37.js"
     ],
     "dynamicImports": [
@@ -23,16 +23,16 @@
     ]
   },
   "node_modules/@sveltejs/kit/src/runtime/components/error.svelte": {
-    "file": "_app/immutable/components/error.svelte-6c6a7b35.js",
+    "file": "_app/immutable/components/error.svelte-b30f27ce.js",
     "src": "node_modules/@sveltejs/kit/src/runtime/components/error.svelte",
     "isEntry": true,
     "imports": [
       "_index-dec2a072.js",
-      "_singletons-5e4cacfd.js"
+      "_singletons-0ab1882d.js"
     ]
   },
   "src/routes/+page.svelte": {
-    "file": "_app/immutable/components/pages/_page.svelte-420fd13c.js",
+    "file": "_app/immutable/components/pages/_page.svelte-d1811b77.js",
     "src": "src/routes/+page.svelte",
     "isEntry": true,
     "imports": [
@@ -40,11 +40,11 @@
       "_paths-f8804f37.js"
     ],
     "css": [
-      "_app/immutable/assets/_page-5f33bc77.css"
+      "_app/immutable/assets/_page-95611c25.css"
     ]
   },
-  "_singletons-5e4cacfd.js": {
-    "file": "_app/immutable/chunks/singletons-5e4cacfd.js",
+  "_singletons-0ab1882d.js": {
+    "file": "_app/immutable/chunks/singletons-0ab1882d.js",
     "imports": [
       "_paths-f8804f37.js"
     ]
@@ -67,7 +67,7 @@
     ]
   },
   ".svelte-kit/generated/nodes/1.js": {
-    "file": "_app/immutable/chunks/1-a60e4336.js",
+    "file": "_app/immutable/chunks/1-0f843ad2.js",
     "src": ".svelte-kit/generated/nodes/1.js",
     "isDynamicEntry": true,
     "imports": [
@@ -75,7 +75,7 @@
     ]
   },
   ".svelte-kit/generated/nodes/2.js": {
-    "file": "_app/immutable/chunks/2-e12bad2f.js",
+    "file": "_app/immutable/chunks/2-35cd96a8.js",
     "src": ".svelte-kit/generated/nodes/2.js",
     "isDynamicEntry": true,
     "imports": [
@@ -83,7 +83,7 @@
     ]
   },
   "src/routes/+page.css": {
-    "file": "_app/immutable/assets/_page-5f33bc77.css",
+    "file": "_app/immutable/assets/_page-95611c25.css",
     "src": "src/routes/+page.css"
   }
 }
