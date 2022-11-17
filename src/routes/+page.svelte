@@ -46,14 +46,7 @@
     Map<number, Map<number, BilateralTradeYear[]>>
   >;
   let exportExtent: [number, number];
-
-  // $: bilateralDataForYear = bilateralData?.get($year) ?? new Map();
-
-  // reduce bilateralData
-
-  // $: bilateralDataForYear = d3.rollup(allTrades?.filter((d) => $years.includes(d.year))
-  //   (d) => 
-  // );
+  let country1Tocountry2: boolean = true;
 
   // maps by partner id then by year
   let drilldownBilateralForCountry: Map<
@@ -105,7 +98,7 @@
         bls,
         (v) => v.location_id,
         (v) => v.partner_id,
-        (v) => v.year,
+        (v) => v.year
       );
 
       allTrades = bls;
@@ -194,6 +187,19 @@
           }}
         />
       </div>
+      <div class="treemap-header">
+        <h3 class="country1-name">{country1?.name}</h3>
+        <div
+          class="arrow"
+          style={`transform: rotate(${country1Tocountry2 ? 0 : 180}deg)`}
+          on:click={() => {
+            country1Tocountry2 = !country1Tocountry2;
+          }}
+        >
+          <span>→</span>
+        </div>
+        <h3 class="country2-name">{country2?.name}</h3>
+      </div>
       <div class="viz-row">
         <TreeMap
           data={{
@@ -204,10 +210,10 @@
             country2,
             drilldownBilateral: drilldownBilateralForCountry,
             loadingDrilldown,
-            valueField: "export_value",
+            valueField: country1Tocountry2 ? "export_value" : "import_value",
           }}
         />
-        <TreeMap
+        <!-- <TreeMap
           data={{
             locationData,
             productData,
@@ -218,7 +224,7 @@
             loadingDrilldown,
             valueField: "import_value",
           }}
-        />
+        /> -->
       </div>
     </div>
   </div>
@@ -260,6 +266,33 @@
   h2 {
     font-weight: 300;
   }
+  .treemap-header {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    
+    h3 {
+      font-size: 1.7rem;
+      margin: 0 15px;
+    }
+  }
+  .arrow {
+    padding: 4px;
+    font-size: 1.6rem;
+    font-weight: bold;
+    width: 1.7rem;
+    height: 1.7rem;
+    margin-bottom: -10px;
+    display: flex;
+    color: black;
+    justify-content: center;
+    align-items: center;
+    transition: all 0.2s ease;
+    border: 2px solid gray;
+    border-radius: 100%;
+    vertical-align: middle;
+    cursor: pointer;
+  }
   #container {
     width: 100%;
     height: 100%;
@@ -271,6 +304,7 @@
   .viz-row {
     display: flex;
     flex-direction: row;
+    // flex-wrap: wrap;
   }
   #content {
     display: flex;
@@ -287,7 +321,7 @@
   }
   :global(.viz-section-full) {
     width: 1640px;
-    height: 80vh;
+    height: 50vh;
     border: 2px solid rgba(0, 0, 0, 0.2);
     margin: 20px;
     padding: 0;

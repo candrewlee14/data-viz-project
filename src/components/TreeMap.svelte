@@ -137,7 +137,7 @@
   }
 </script>
 
-<div class="viz-section" bind:clientWidth={width} bind:clientHeight={height}>
+<div class="viz-section-full" bind:clientWidth={width} bind:clientHeight={height}>
   <svg>
     <g class="treemap" bind:this={treemapElem}>
       {#each leaves as leaf (leaf.data.product_id)}
