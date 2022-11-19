@@ -1,5 +1,6 @@
 <script lang="ts">
   import * as d3 from "d3";
+  import { sectors } from "../stores/store";
   import { Location, Product, BilateralTradeYear } from "../models/models";
   import { onMount } from "svelte";
   import { years } from "../stores/store";
@@ -161,14 +162,6 @@
 >
   <svg>
     {#if tradeData && tradeData.length > 0}
-      <!-- {#if sortMethod == SortMethod.AlphaUp || sortMethod == SortMethod.AlphaDown}
-        <text x={5} y={LABEL_HEIGHT / 2} alignment-baseline="hanging"
-          class="sort-ind"
-          in:fade={{duration: 100}}
-          out:fade={{duration: 100}}
-          >{sortMethod == SortMethod.AlphaUp ? "↑" : "↓"}</text
-        >
-      {/if} -->
       <text
         text-anchor="start"
         class="chart-header sortable"
@@ -184,7 +177,11 @@
         }}
         on:keydown={() => {}}
       >
-      Sector {sortMethod == SortMethod.AlphaUp ? "↑" : sortMethod == SortMethod.AlphaDown ? "↓" : " "}
+        Sector {sortMethod == SortMethod.AlphaUp
+          ? "↑"
+          : sortMethod == SortMethod.AlphaDown
+          ? "↓"
+          : " "}
       </text>
       <text
         text-anchor="middle"
@@ -201,7 +198,11 @@
         }}
         on:keydown={() => {}}
       >
-        Trade Flow {sortMethod == SortMethod.Up ? "↑" : sortMethod == SortMethod.Down ? "↓" : " "}
+        Trade Flow {sortMethod == SortMethod.Up
+          ? "↑"
+          : sortMethod == SortMethod.Down
+          ? "↓"
+          : " "}
       </text>
       <text
         class="from-label sortable"
@@ -218,7 +219,11 @@
           }
         }}
       >
-        From {country1?.name + " "}{sortMethod == SortMethod.LeftUp ? "↑" : sortMethod == SortMethod.LeftDown ? "↓" : " "}
+        From {country1?.name + " "}{sortMethod == SortMethod.LeftUp
+          ? "↑"
+          : sortMethod == SortMethod.LeftDown
+          ? "↓"
+          : " "}
       </text>
       <text
         class="from-label sortable"
@@ -236,7 +241,11 @@
         }}
         on:keydown={() => {}}
       >
-      {sortMethod == SortMethod.RightUp ? "↑" : sortMethod == SortMethod.RightDown ? "↓" : " "}&nbsp;From {country2?.name}
+        {sortMethod == SortMethod.RightUp
+          ? "↑"
+          : sortMethod == SortMethod.RightDown
+          ? "↓"
+          : " "}&nbsp;From {country2?.name}
       </text>
       <g id="bar-content" transform={`translate(${0},${LABEL_HEIGHT})`}>
         {#each tradeData as bt, i (bt.product_id)}
@@ -250,25 +259,19 @@
             />
           {/if}
         {/each}
-        {#each tradeData as bt, i (bt.product_id)}
-          <text
-            class="product-text"
-            alignment-baseline="hanging"
-            x="10"
-            y={i * ROW_HEIGHT + MARGIN_TOP + 6}
-            animate:flip={{ duration: 400, delay: 20 }}>{bt.product.name}</text
-          >
-        {/each}
         {#each tradeData as bt, i (i)}
           <g
             class="bar-row"
             transform={`translate(0, ${i * ROW_HEIGHT + MARGIN_TOP})`}
           >
             <rect
+              class="tab"
               x="0"
               y="2"
               height={ROW_HEIGHT - 4}
-              width="6"
+              width={($sectors.size > 0 && $sectors.has(bt.product_id))
+                ? PRODUCT_WIDTH - 1
+                : 6}
               fill={productColorScale
                 ? productColorScale(bt.product.name)
                 : "white"}
@@ -291,6 +294,29 @@
               fill={countryColorScale(bt.partner_id)}
             />
           </g>
+        {/each}
+        {#each tradeData as bt, i (bt.product_id)}
+          <text
+            class="product-text"
+            alignment-baseline="hanging"
+            x="10"
+            y={i * ROW_HEIGHT + MARGIN_TOP + 6}
+            on:click={() => {
+              if ($sectors.has(bt.product_id)) {
+                sectors.update((s) => {
+                  s.delete(bt.product_id);
+                  return s;
+                });
+              } else {
+                sectors.update((s) => {
+                  s.add(bt.product_id);
+                  return s;
+                });
+              }
+            }}
+            on:keydown={() => {}}
+            animate:flip={{ duration: 400, delay: 20 }}>{bt.product.name}</text
+          >
         {/each}
         <line
           id="midline"
@@ -350,8 +376,13 @@
   rect {
     transition: all 0.4s ease;
   }
-
+  .tab {
+    transition: all 0.1s ease;
+  }
   .sortable {
+    cursor: pointer;
+  }
+  .product-text {
     cursor: pointer;
   }
   .sortable:hover {

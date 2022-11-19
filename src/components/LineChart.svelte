@@ -1,6 +1,6 @@
 <script lang="ts">
   import * as d3 from "d3";
-  import { years } from "../stores/store";
+  import { years, sectors } from "../stores/store";
   import {
     type Location,
     type Product,
@@ -80,6 +80,9 @@
     let year: number = d[0];
     // @ts-ignore
     let bls: BilateralTradeYear[] = d[1];
+    bls = $sectors.size == 0
+          ? bls
+          : bls.filter((d) => $sectors.has(d.product_id));
     return bls.reduce(
       (acc, b) => {
         acc.export_value += b.export_value;

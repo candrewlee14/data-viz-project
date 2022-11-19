@@ -1,6 +1,6 @@
 <script lang="ts">
   import * as d3 from "d3";
-  import { years } from "../stores/store";
+  import { years, sectors } from "../stores/store";
   import { type Location, Product, BilateralTradeYear } from "../models/models";
 
   const formatter = (val: number) => d3.format("$.2s")(val).replace(/G/, "B");
@@ -11,8 +11,8 @@
     valueField: string;
     productColorScale: d3.ScaleOrdinal<string, string, never> | null;
     drilldownBilateral: Map<number, Map<number, BilateralTradeYear[]>> | null;
-    locationData: Map<number, Location>,
-    productData: Map<number, Product>,
+    locationData: Map<number, Location>;
+    productData: Map<number, Product>;
     loadingDrilldown: boolean;
   };
 
@@ -39,11 +39,18 @@
 
   $: innerDrilldownBilateral = drilldownBilateral?.get(country2?.id ?? 0);
 
-  $: allInnerDataUnagg = ($years.map((year) => innerDrilldownBilateral?.get(year) ?? new Array()).flat() as BilateralTradeYear[]);
+  $: allInnerDataUnagg = $years
+    .map((year) => innerDrilldownBilateral?.get(year) ?? new Array())
+    .flat() as BilateralTradeYear[];
 
-
-  $: bilaterals = Array.from(d3.rollup(allInnerDataUnagg,
-    (v) => v.reduce(
+  $: bilaterals = Array.from(
+    d3
+      .rollup(
+        $sectors.size == 0
+          ? allInnerDataUnagg
+          : allInnerDataUnagg.filter((d) => $sectors.has(d.product.parent_id)),
+        (v) =>
+          v.reduce(
             (acc, b) => {
               acc.export_value += b.export_value;
               acc.import_value += b.import_value;
@@ -56,11 +63,12 @@
               year: 0,
               export_value: 0,
               import_value: 0,
-            })),
-    (d) => d.product_id,
-  ).values());
-
-
+            })
+          ),
+        (d) => d.product_id
+      )
+      .values()
+  );
 
   // export let country1: Location | null;
   // export let country2: Location | null;
@@ -81,59 +89,85 @@
   let leaves: LeafNode[] = new Array();
 
   $: if (bilaterals && bilaterals.length > 0) {
-    let bl = new BilateralTradeYear(new Map(), new Map(), {
-      location_id: country1,
-      partner_id: country2,
-      product_id: -1,
-      year: 0,
-      export_value: 0,
-      import_value: 0,
-    });
-    bl.product = new Product({
-      product_id: -1,
-      name: "All",
-      level: -1,
-      parent_id: -1,
-    });
-
-    // it is necessary to set this as null for stratify to consider it the parent
-    // @ts-ignore
-    bl.product.parent_id = null;
-    let bls = [bl];
-
-    let bl_grouped = d3.group(bilaterals, (v) => v.product?.parent_id ?? -1);
-    if (bl_grouped.size > 1) {
-      for (let [key, value] of bl_grouped) {
-        let bl = new BilateralTradeYear(new Map(), new Map(), {
-          location_id: country1,
-          partner_id: country2,
-          product_id: key,
-          year: 0,
-          export_value: 0,
-          import_value: 0,
-        });
-        bl.product = new Product({
-          product_id: key,
-          name: "Something",
-          level: 0,
-          parent_id: -1,
-        });
-        bls.push(bl);
-      }
-
-      bls = bls.concat(bilaterals);
-
-      let treemapRoot = d3
-        .stratify()
-        .id((d: any) => d.product?.id)
-        .parentId((d: any) => d.product?.parent_id)(bls);
-      treemapRoot.sum((d: any) => Math.max(0, d[valueField]));
-      d3.treemap().tile(d3.treemapResquarify).size([width, height]).padding(2)(
-        treemapRoot
-      );
+    let bls = [];
+    if ($sectors.size == 1) {
+      let v = $sectors.entries().next().value[1] as number;
+      console.log(v);
+      let bl = new BilateralTradeYear(new Map(), new Map(), {
+        location_id: country1,
+        partner_id: country2,
+        product_id: v,
+        year: 0,
+        export_value: 0,
+        import_value: 0,
+      });
+      bl.product = new Product({
+        product_id: v,
+        name: "Sector",
+        level: -1,
+        parent_id: -1,
+      });
+      // it is necessary to set this as null for stratify to consider it the parent
       // @ts-ignore
-      leaves = treemapRoot.leaves() as LeafNode[];
+      bl.product.parent_id = null;
+      bls.push(bl);
     }
+    else {
+      let bl = new BilateralTradeYear(new Map(), new Map(), {
+        location_id: country1,
+        partner_id: country2,
+        product_id: -1,
+        year: 0,
+        export_value: 0,
+        import_value: 0,
+      });
+      bl.product = new Product({
+        product_id: -1,
+        name: "All",
+        level: -1,
+        parent_id: -1,
+      });
+
+      // it is necessary to set this as null for stratify to consider it the parent
+      // @ts-ignore
+      bl.product.parent_id = null;
+      bls.push(bl);
+
+      let bl_grouped = d3.group(bilaterals, (v) => v.product?.parent_id ?? -1);
+      if (bl_grouped.size > 1) {
+        for (let [key, value] of bl_grouped) {
+          let bl = new BilateralTradeYear(new Map(), new Map(), {
+            location_id: country1,
+            partner_id: country2,
+            product_id: key,
+            year: 0,
+            export_value: 0,
+            import_value: 0,
+          });
+          bl.product = new Product({
+            product_id: key,
+            name: "Something",
+            level: 0,
+            parent_id: -1,
+          });
+          bls.push(bl);
+        }
+      }
+    }
+
+    bls = bls.concat(bilaterals);
+    console.log(bls);
+
+    let treemapRoot = d3
+      .stratify()
+      .id((d: any) => d.product?.id)
+      .parentId((d: any) => d.product?.parent_id)(bls);
+    treemapRoot.sum((d: any) => Math.max(0, d[valueField]));
+    d3.treemap().tile(d3.treemapResquarify).size([width, height]).padding(2)(
+      treemapRoot
+    );
+    // @ts-ignore
+    leaves = treemapRoot.leaves() as LeafNode[];
   }
 </script>
 
