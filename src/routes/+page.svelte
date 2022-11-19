@@ -127,6 +127,10 @@
   });
 </script>
 
+<svelte:head>
+  <link rel="icon" href={`${base}/favicon.png`} />
+</svelte:head>
+
 <div class="heading">
   <h1>Commerce Among Nations</h1>
   <h2>A Bilateral Trade Data Visualization by Andrew Lee & Franklin Yuan</h2>
