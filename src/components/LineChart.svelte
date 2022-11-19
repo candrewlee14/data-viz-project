@@ -201,7 +201,10 @@
           cy={yScale(bt.export_value)}
           r="5"
           fill={countryColorScale(country1)}
+          stroke={$years.includes(bt.year) ? "rgba(0,0,0,1)" : "rgba(0,0,0,0)"}
+          stroke-width=2
           on:click={updateYear(bt.year)}
+          on:keydown={() => {}}
         />
       {/each}
     </g>
@@ -218,7 +221,10 @@
           cy={yScale(bt.import_value)}
           r="5"
           fill={countryColorScale(country2)}
+          stroke={$years.includes(bt.year) ? "rgba(0,0,0,1)" : "rgba(0,0,0,0)"}
+          stroke-width=2
           on:click={updateYear(bt.year)}
+          on:keydown={() => {}}
         />
       {/each}
     </g>

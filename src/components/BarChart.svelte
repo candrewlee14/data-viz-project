@@ -171,7 +171,7 @@
       {/if} -->
       <text
         text-anchor="start"
-        class="chart-header"
+        class="chart-header sortable"
         x={15}
         y={LABEL_HEIGHT / 2}
         alignment-baseline="hanging"
@@ -188,7 +188,7 @@
       </text>
       <text
         text-anchor="middle"
-        class="chart-header"
+        class="chart-header sortable"
         x={(width - PRODUCT_WIDTH) / 2 + PRODUCT_WIDTH}
         y={LABEL_HEIGHT / 2 - 7}
         alignment-baseline="hanging"
@@ -204,7 +204,7 @@
         Trade Flow {sortMethod == SortMethod.Up ? "↑" : sortMethod == SortMethod.Down ? "↓" : " "}
       </text>
       <text
-        class="from-label"
+        class="from-label sortable"
         x={PRODUCT_WIDTH + 20}
         y={LABEL_HEIGHT / 2 - 5}
         alignment-baseline="hanging"
@@ -221,7 +221,7 @@
         From {country1?.name + " "}{sortMethod == SortMethod.LeftUp ? "↑" : sortMethod == SortMethod.LeftDown ? "↓" : " "}
       </text>
       <text
-        class="from-label"
+        class="from-label sortable"
         x={width - 20}
         y={LABEL_HEIGHT / 2 - 5}
         text-anchor="end"
@@ -234,6 +234,7 @@
             sortMethod = SortMethod.RightDown;
           }
         }}
+        on:keydown={() => {}}
       >
       {sortMethod == SortMethod.RightUp ? "↑" : sortMethod == SortMethod.RightDown ? "↓" : " "}&nbsp;From {country2?.name}
       </text>
@@ -255,15 +256,13 @@
             alignment-baseline="hanging"
             x="10"
             y={i * ROW_HEIGHT + MARGIN_TOP + 6}
-            animate:flip={{ duration: 400 }}>{bt.product.name}</text
+            animate:flip={{ duration: 400, delay: 20 }}>{bt.product.name}</text
           >
         {/each}
         {#each tradeData as bt, i (i)}
           <g
             class="bar-row"
             transform={`translate(0, ${i * ROW_HEIGHT + MARGIN_TOP})`}
-            in:fade
-            out:fade
           >
             <rect
               x="0"
@@ -350,5 +349,13 @@
   }
   rect {
     transition: all 0.4s ease;
+  }
+
+  .sortable {
+    cursor: pointer;
+  }
+  .sortable:hover {
+    fill: rgb(121, 122, 134);
+    transition: fill 0.05s ease;
   }
 </style>
