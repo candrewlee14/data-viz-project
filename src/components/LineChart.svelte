@@ -1,6 +1,6 @@
 <script lang="ts">
   import * as d3 from "d3";
-  import { years, sectors } from "../stores/store";
+  import { years, sectors } from "../global/store";
   import {
     type Location,
     type Product,

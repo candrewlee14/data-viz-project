@@ -1,9 +1,9 @@
 <script lang="ts">
   import * as d3 from "d3";
-  import { sectors } from "../stores/store";
+  import { sectors } from "../global/store";
   import { Location, Product, BilateralTradeYear } from "../models/models";
   import { onMount } from "svelte";
-  import { years } from "../stores/store";
+  import { years } from "../global/store";
   import { fade, fly } from "svelte/transition";
   import { flip } from "svelte/animate";
 

@@ -1,6 +1,7 @@
 <script lang="ts">
   import * as d3 from "d3";
-  import { years } from "../stores/store";
+  import { years } from "../global/store";
+  import {getFlagUrl} from "../global/flag";
   import { Location, Product, BilateralTradeYear } from "../models/models";
   import { onMount } from "svelte";
   import Select from "svelte-select";
@@ -125,6 +126,7 @@
       );
     });
   });
+
 </script>
 
 <svelte:head>
@@ -137,9 +139,8 @@
 </div>
 {#if locationData && bilateralData && productData && countryColorScale}
   <div class="selectors">
-    <div
-      class="country-icon"
-      style={`background:${countryColorScale(country1?.id ?? 0)}`}
+    <img class="country-icon"
+      src={getFlagUrl(country1?.code ?? "ATA")}
     />
     <div class="dropdown">
       <span>Country 1</span>
@@ -161,11 +162,8 @@
         on:select={onSelectCountry2}
       />
     </div>
-    <div
-      class="country-icon"
-      style={`background:${
-        countryColorScale ? countryColorScale(country2?.id ?? 0) : "white"
-      }`}
+    <img class="country-icon"
+      src={getFlagUrl(country2?.code ?? "ATA")}
     />
   </div>
   <div>
@@ -317,8 +315,8 @@
   }
   .country-icon {
     margin-top: 10px;
-    width: 50px;
-    height: 65px;
+    width: 80px;
+    height: 60px;
     border: 2px solid rgba(0, 0, 0, 0.2);
   }
   .loading {

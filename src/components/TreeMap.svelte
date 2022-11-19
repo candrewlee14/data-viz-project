@@ -1,6 +1,6 @@
 <script lang="ts">
   import * as d3 from "d3";
-  import { years, sectors } from "../stores/store";
+  import { years, sectors } from "../global/store";
   import { type Location, Product, BilateralTradeYear } from "../models/models";
 
   const formatter = (val: number) => d3.format("$.2s")(val).replace(/G/, "B");
