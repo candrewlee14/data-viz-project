@@ -184,6 +184,20 @@
             fill={productColorScale
               ? productColorScale(leaf.data?.product?.parent?.name ?? "")
               : "white"}
+            on:keydown={()=>{}}
+            on:click={() => {
+              if (leaf.data?.product?.parent && $sectors.has(leaf.data?.product?.parent?.id)) {
+                sectors.update((s) => {
+                  s.delete(leaf.data?.product?.parent?.id ?? -1);
+                  return s;
+                });
+              } else if (leaf.data?.product?.parent != null) {
+                sectors.update((s) => {
+                  s.add(leaf.data?.product?.parent?.id ?? -1);
+                  return s;
+                });
+              }
+            }}
           />
           {#if leaf.x1 - leaf.x0 > 40 && leaf.y1 - leaf.y0 > 10}
             <text
