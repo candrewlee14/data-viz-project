@@ -129,7 +129,7 @@ class Tooltip {
         .attr("id", "tooltip-text2")
         .attr("x", this.getTooltipX(e.layerX, ct.TEXT_OFFSET_X, tooltipWidth))
         .attr("y", this.getTooltipY(e.layerY, ct.TEXT2_OFFSET_Y))
-        .text(`Year: ${bt.year}`);
+        .text(`Year: ${bt.year}, Total: ${isExport ? this.formatter(bt.export_value) : this.formatter(bt.import_value)}`);
 
       tooltip
         .append("text")
