@@ -1,6 +1,6 @@
 <script lang="ts">
   import * as d3 from "d3";
-  import { years } from "../global/store";
+  import { years, showExport } from "../global/store";
   import {getFlagUrl} from "../global/flag";
   import { Location, Product, BilateralTradeYear } from "../models/models";
   import { onMount } from "svelte";
@@ -47,6 +47,8 @@
     Map<number, Map<number, BilateralTradeYear[]>>
   >;
   let exportExtent: [number, number];
+
+  const radioButtonValues = ["Export", "Import"];
 
   // $: bilateralDataForYear = bilateralData?.get($year) ?? new Map();
 
@@ -209,7 +211,7 @@
             valueField: "export_value",
           }}
         />
-        <TreeMap
+        <!-- <TreeMap
           data={{
             locationData,
             productData,
@@ -220,7 +222,7 @@
             loadingDrilldown,
             valueField: "import_value",
           }}
-        />
+        /> -->
       </div>
     </div>
   </div>

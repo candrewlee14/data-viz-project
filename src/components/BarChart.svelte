@@ -1,6 +1,6 @@
 <script lang="ts">
   import * as d3 from "d3";
-  import { sectors } from "../global/store";
+  import { sectors, showExport } from "../global/store";
   import { Location, Product, BilateralTradeYear } from "../models/models";
   import { onMount } from "svelte";
   import { years } from "../global/store";
@@ -301,6 +301,28 @@
               on:mouseover={barChartTooltip.mouseOverBarChart(bt, true, $years)}
               on:mousemove={barChartTooltip.mouseMove($years)}
               on:mouseleave={barChartTooltip.mouseLeave()}
+              on:click={() => {
+                if (!$showExport) {
+                  showExport.set(true);
+                  sectors.update((s) => {
+                    s.clear();
+                    return s;
+                  })
+                }
+                if ($sectors.has(bt?.product_id)) {
+                  sectors.update((s) => {
+                    s.delete(bt?.product_id ?? -1);
+                    console.log(s)
+                    return s;
+                  });
+                } else if (bt?.product_id >= 0) {
+                  sectors.update((s) => {
+                    s.add(bt?.product_id ?? -1);
+                    console.log(s)
+                    return s;
+                  });
+                }
+              }}
             />
             <rect
               class="country2-bar"
@@ -313,6 +335,28 @@
               on:mouseover={barChartTooltip.mouseOverBarChart(bt, false, $years)}
               on:mousemove={barChartTooltip.mouseMove($years)}
               on:mouseleave={barChartTooltip.mouseLeave()}
+              on:click={() => {
+                if ($showExport) {
+                  showExport.set(false);
+                  sectors.update((s) => {
+                    s.clear();
+                    return s;
+                  })
+                }
+                if ($sectors.has(bt?.product_id)) {
+                  sectors.update((s) => {
+                    s.delete(bt?.product_id ?? -1);
+                    console.log(s)
+                    return s;
+                  });
+                } else if (bt?.product_id >= 0) {
+                  sectors.update((s) => {
+                    s.add(bt?.product_id ?? -1);
+                    console.log(s)
+                    return s;
+                  });
+                }
+              }}
             />
           </g>
         {/each}

@@ -1,6 +1,6 @@
 <script lang="ts">
   import * as d3 from "d3";
-  import { years, sectors } from "../global/store";
+  import { years, sectors, showExport } from "../global/store";
   import { type Location, Product, BilateralTradeYear } from "../models/models";
   import { Tooltip } from "../models/tooltip";
 
@@ -171,8 +171,8 @@
       .stratify()
       .id((d: any) => d.product?.id)
       .parentId((d: any) => d.product?.parent_id)(bls);
-    treemapRoot.sum((d: any) => Math.max(0, d[valueField]));
-    d3.treemap().tile(d3.treemapResquarify).size([width, height]).padding(2)(
+    treemapRoot.sum((d: any) => Math.max(0, d[$showExport ? "export_value" : "import_value"]));
+    d3.treemap().tile(d3.treemapBinary).size([width, height]).padding(2)(
       treemapRoot
     );
     // @ts-ignore
@@ -180,7 +180,7 @@
   }
 </script>
 
-<div class="viz-section" bind:clientWidth={width} bind:clientHeight={height}>
+<div class="viz-section-full" bind:clientWidth={width} bind:clientHeight={height}>
   <svg>
     <g class="treemap" bind:this={treemapElem}>
       {#each leaves as leaf (leaf.data.product_id)}
@@ -198,11 +198,13 @@
               if (leaf.data?.product?.parent && $sectors.has(leaf.data?.product?.parent?.id)) {
                 sectors.update((s) => {
                   s.delete(leaf.data?.product?.parent?.id ?? -1);
+                  console.log(s)
                   return s;
                 });
               } else if (leaf.data?.product?.parent != null) {
                 sectors.update((s) => {
                   s.add(leaf.data?.product?.parent?.id ?? -1);
+                  console.log(s)
                   return s;
                 });
               }
@@ -232,7 +234,7 @@
               font-weight="300"
             >
               {formatter(
-                valueField === "export_value"
+                $showExport
                   ? leaf.data.export_value
                   : leaf.data.import_value
               )}
