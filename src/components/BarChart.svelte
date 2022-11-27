@@ -436,6 +436,7 @@
               width={barScale(0) - barScale(-bt.export_value)}
               fill={countryColorScale(bt.location_id)}
               on:focus
+              on:keydown={()=>{}}
               on:mouseover={mouseOver(bt, true)}
               on:mousemove={mouseMove()}
               on:mouseleave={mouseLeave()}
@@ -470,6 +471,7 @@
               width={barScale(bt.import_value) - barScale(0)}
               fill={countryColorScale(bt.partner_id)}
               on:focus
+              on:keydown={()=>{}}
               on:mouseover={mouseOver(bt, false)}
               on:mousemove={mouseMove()}
               on:mouseleave={mouseLeave()}

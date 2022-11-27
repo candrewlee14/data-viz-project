@@ -3,12 +3,11 @@
   import { sectors, showExport, years } from "../global/store";
   import { BilateralTradeYear, Product, type Location } from "../models/models";
 
-  const formatter = (val: number) => d3.format("$.2s")(val).replace(/G/, "B");
+  const formatter = (val: number) => d3.format("$.3s")(val).replace(/G/, "B");
 
   export let data: {
     country1: Location | null;
     country2: Location | null;
-    valueField: string;
     productColorScale: d3.ScaleOrdinal<string, string, never> | null;
     drilldownBilateral: Map<number, Map<number, BilateralTradeYear[]>> | null;
     locationData: Map<number, Location>;
@@ -19,7 +18,6 @@
   let {
     country1,
     country2,
-    valueField,
     productColorScale,
     drilldownBilateral,
     loadingDrilldown,
@@ -28,7 +26,6 @@
   } = data;
   $: ({
     drilldownBilateral,
-    valueField,
     productColorScale,
     country1,
     country2,
@@ -51,12 +48,10 @@
     .map((year) => innerDrilldownBilateral?.get(year) ?? new Array())
     .flat() as BilateralTradeYear[];
 
-  $: bilaterals = Array.from(
+  $: innerDataAll = Array.from(
     d3
       .rollup(
-        $sectors.size == 0
-          ? allInnerDataUnagg
-          : allInnerDataUnagg.filter((d) => $sectors.has(d.product.parent_id)),
+        allInnerDataUnagg,
         (v) =>
           v.reduce(
             (acc, b) => {
@@ -78,9 +73,48 @@
       .values()
   );
 
+  $: sumExport = d3.sum(
+    innerDataAll,
+    (v: BilateralTradeYear) => v.export_value
+  ) as number;
+
+  $: sumImport = d3.sum(
+    innerDataAll,
+    (v: BilateralTradeYear) => v.import_value
+  ) as number;
+
+  $: bilaterals =
+    $sectors.size == 0
+      ? innerDataAll
+      : Array.from(
+          d3
+            .rollup(
+              allInnerDataUnagg.filter((d) =>
+                $sectors.has(d.product.parent_id)
+              ),
+              (v) =>
+                v.reduce(
+                  (acc, b) => {
+                    acc.export_value += b.export_value;
+                    acc.import_value += b.import_value;
+                    return acc;
+                  },
+                  new BilateralTradeYear(locationData, productData, {
+                    location_id: country1,
+                    partner_id: country2,
+                    product_id: v[0].product_id,
+                    year: 0,
+                    export_value: 0,
+                    import_value: 0,
+                  })
+                ),
+              (d) => d.product_id
+            )
+            .values()
+        );
+
   // export let country1: Location | null;
   // export let country2: Location | null;
-  // export let valueField: string;
 
   interface LeafNode {
     data: BilateralTradeYear;
@@ -89,6 +123,14 @@
     y0: number;
     y1: number;
   }
+
+  const TOOLTIP_OFFSET = 10;
+  const TOOLTIP_RECT_WIDTH_BASE = 140;
+  const TOOLTIP_RECT_WIDTH_INCRE = 25;
+  const TOOLTIP_RECT_HEIGHT = 90;
+  const TEXT_OFFSET_X = 20;
+  const TEXT_OFFSET_Y_BASE = 28;
+  const TEXT_OFFSET_Y_INCRE = 15;
 
   let width: number = 0;
   let height: number = 0;
@@ -119,8 +161,7 @@
       // @ts-ignore
       bl.product.parent_id = null;
       bls.push(bl);
-    }
-    else {
+    } else {
       let bl = new BilateralTradeYear(new Map(), new Map(), {
         location_id: country1,
         partner_id: country2,
@@ -170,16 +211,178 @@
       .stratify()
       .id((d: any) => d.product?.id)
       .parentId((d: any) => d.product?.parent_id)(bls);
-    treemapRoot.sum((d: any) => Math.max(0, d[$showExport ? "export_value" : "import_value"]));
+    treemapRoot.sum((d: any) =>
+      Math.max(0, d[$showExport ? "export_value" : "import_value"])
+    );
     d3.treemap().tile(d3.treemapBinary).size([width, height]).padding(2)(
       treemapRoot
     );
     // @ts-ignore
     leaves = treemapRoot.leaves() as LeafNode[];
   }
+
+  function getTooltipX(
+    eventX: number,
+    offsetX: number,
+    tooltipWidth: number
+  ): number {
+    if (eventX + tooltipWidth < width) {
+      return eventX + offsetX;
+    } else {
+      return eventX + offsetX - tooltipWidth;
+    }
+  }
+
+  function getTooltipY(eventY: number, offsetY: number): number {
+    if (eventY + TOOLTIP_RECT_HEIGHT < 350) {
+      return eventY + offsetY;
+    } else {
+      return eventY + offsetY - TOOLTIP_RECT_HEIGHT;
+    }
+  }
+
+  function mouseOver(bt: BilateralTradeYear): (e: any) => void {
+    return (e: any) => {
+
+      // determine the length of the bt.product.name
+      // and then choose the width of the tooltip rect
+
+      let tooltip = d3.select("#treemap-tooltip");
+      let tooltipWidth =
+        TOOLTIP_RECT_WIDTH_BASE + $years.length * TOOLTIP_RECT_WIDTH_INCRE;
+
+      tooltip
+        .append("rect")
+        .attr("id", "tooltip-rect")
+        .attr("width", tooltipWidth)
+        .attr("height", TOOLTIP_RECT_HEIGHT)
+        .attr("x", getTooltipX(e.layerX, TOOLTIP_OFFSET, tooltipWidth))
+        .attr("y", getTooltipY(e.layerY, TOOLTIP_OFFSET));
+
+      // Product
+      tooltip
+        .append("text")
+        .attr("class", "treemap")
+        .attr("id", "tooltip-text1")
+        .attr("x", getTooltipX(e.layerX, TEXT_OFFSET_X, tooltipWidth))
+        .attr("y", getTooltipY(e.layerY, TEXT_OFFSET_Y_BASE))
+        .style("font-weight", "bold")
+        .text(`${bt.product.name}`);
+
+      // Sector
+      tooltip
+        .append("text")
+        .attr("class", "treemap")
+        .attr("id", "tooltip-text2")
+        .attr("x", getTooltipX(e.layerX, TEXT_OFFSET_X, tooltipWidth))
+        .attr(
+          "y",
+          getTooltipY(e.layerY, TEXT_OFFSET_Y_BASE + TEXT_OFFSET_Y_INCRE)
+        )
+        .text(`Sector: ${bt.product?.parent?.name ?? ""}`);
+
+      // Export/Import
+      tooltip
+        .append("text")
+        .attr("class", "treemap")
+        .attr("id", "tooltip-text3")
+        .attr("x", getTooltipX(e.layerX, TEXT_OFFSET_X, tooltipWidth))
+        .attr(
+          "y",
+          getTooltipY(e.layerY, TEXT_OFFSET_Y_BASE + 2 * TEXT_OFFSET_Y_INCRE)
+        )
+        .text(
+          ($showExport ? "Export: " : "Import: ") +
+            `${formatter($showExport ? bt.export_value : bt.import_value)}`
+        );
+
+      // Share
+      tooltip
+        .append("text")
+        .attr("class", "treemap")
+        .attr("id", "tooltip-text4")
+        .attr("x", getTooltipX(e.layerX, TEXT_OFFSET_X, tooltipWidth))
+        .attr(
+          "y",
+          getTooltipY(e.layerY, TEXT_OFFSET_Y_BASE + 3 * TEXT_OFFSET_Y_INCRE)
+        )
+        .text(
+          `Share: ${d3.format(".2%")(
+            $showExport
+              ? bt.export_value / sumExport
+              : bt.import_value / sumImport
+          )}`
+        );
+
+      // Years
+      tooltip
+        .append("text")
+        .attr("class", "treemap")
+        .attr("id", "tooltip-text5")
+        .attr("x", getTooltipX(e.layerX, TEXT_OFFSET_X, tooltipWidth))
+        .attr(
+          "y",
+          getTooltipY(e.layerY, TEXT_OFFSET_Y_BASE + 4 * TEXT_OFFSET_Y_INCRE)
+        )
+        .text(
+          ($years.length > 1 ? "Years: " : "Year: ") + `${$years.join(", ")}`
+        );
+    };
+  }
+
+  function mouseMove(): (e: any) => void {
+    return (e: any) => {
+      // Determine the tooltipWidth
+
+      let tooltipWidth =
+        TOOLTIP_RECT_WIDTH_BASE + $years.length * TOOLTIP_RECT_WIDTH_INCRE;
+      
+      d3.select("#tooltip-rect")
+        .attr("x", getTooltipX(e.layerX, TOOLTIP_OFFSET, tooltipWidth))
+        .attr("y", getTooltipY(e.layerY, TOOLTIP_OFFSET));
+      d3.select("#tooltip-text1")
+        .attr("x", getTooltipX(e.layerX, TEXT_OFFSET_X, tooltipWidth))
+        .attr("y", getTooltipY(e.layerY, TEXT_OFFSET_Y_BASE));
+      d3.select("#tooltip-text2")
+        .attr("x", getTooltipX(e.layerX, TEXT_OFFSET_X, tooltipWidth))
+        .attr(
+          "y",
+          getTooltipY(e.layerY, TEXT_OFFSET_Y_BASE + TEXT_OFFSET_Y_INCRE)
+        );
+      d3.select("#tooltip-text3")
+        .attr("x", getTooltipX(e.layerX, TEXT_OFFSET_X, tooltipWidth))
+        .attr(
+          "y",
+          getTooltipY(e.layerY, TEXT_OFFSET_Y_BASE + 2 * TEXT_OFFSET_Y_INCRE)
+        );
+      d3.select("#tooltip-text4")
+        .attr("x", getTooltipX(e.layerX, TEXT_OFFSET_X, tooltipWidth))
+        .attr(
+          "y",
+          getTooltipY(e.layerY, TEXT_OFFSET_Y_BASE + 3 * TEXT_OFFSET_Y_INCRE)
+        );
+      d3.select("#tooltip-text5")
+        .attr("x", getTooltipX(e.layerX, TEXT_OFFSET_X, tooltipWidth))
+        .attr(
+          "y",
+          getTooltipY(e.layerY, TEXT_OFFSET_Y_BASE + 4 * TEXT_OFFSET_Y_INCRE)
+        );
+    };
+  }
+
+  function mouseLeave(): (e: any) => void {
+    return (e: any) => {
+      d3.select("#treemap-tooltip").selectAll("rect").remove();
+      d3.select("#treemap-tooltip").selectAll("text").remove();
+    };
+  }
 </script>
 
-<div class="viz-section-full" bind:clientWidth={width} bind:clientHeight={height}>
+<div
+  class="viz-section-full"
+  bind:clientWidth={width}
+  bind:clientHeight={height}
+>
   <svg>
     <g class="treemap" bind:this={treemapElem}>
       {#each leaves as leaf (leaf.data.product_id)}
@@ -192,22 +395,29 @@
             fill={productColorScale
               ? productColorScale(leaf.data?.product?.parent?.name ?? "")
               : "white"}
-            on:keydown={()=>{}}
+            on:keydown={() => {}}
             on:click={() => {
-              if (leaf.data?.product?.parent && $sectors.has(leaf.data?.product?.parent?.id)) {
+              if (
+                leaf.data?.product?.parent &&
+                $sectors.has(leaf.data?.product?.parent?.id)
+              ) {
                 sectors.update((s) => {
                   s.delete(leaf.data?.product?.parent?.id ?? -1);
-                  console.log(s)
+                  console.log(s);
                   return s;
                 });
               } else if (leaf.data?.product?.parent != null) {
                 sectors.update((s) => {
                   s.add(leaf.data?.product?.parent?.id ?? -1);
-                  console.log(s)
+                  console.log(s);
                   return s;
                 });
               }
             }}
+            on:focus
+            on:mouseover={mouseOver(leaf.data)}
+            on:mousemove={mouseMove()}
+            on:mouseleave={mouseLeave()}
           />
           {#if leaf.x1 - leaf.x0 > 40 && leaf.y1 - leaf.y0 > 10}
             <text
@@ -215,6 +425,10 @@
               transform={`translate(${leaf.x0 + 3},${leaf.y0 + 3})`}
               alignment-baseline="hanging"
               font-size={Math.max((leaf.x1 - leaf.x0) / 15, 8)}
+              on:focus
+              on:mouseover={mouseOver(leaf.data)}
+              on:mousemove={mouseMove()}
+              on:mouseleave={mouseLeave()}
             >
               {leaf.data?.product.name?.substring(0, 40) ?? ""}
             </text>
@@ -228,17 +442,20 @@
               alignment-baseline="hanging"
               font-size={Math.max((leaf.x1 - leaf.x0) / 15, 8) - 1}
               font-weight="300"
+              on:focus
+              on:mouseover={mouseOver(leaf.data)}
+              on:mousemove={mouseMove()}
+              on:mouseleave={mouseLeave()}
             >
               {formatter(
-                $showExport
-                  ? leaf.data.export_value
-                  : leaf.data.import_value
+                $showExport ? leaf.data.export_value : leaf.data.import_value
               )}
             </text>
           {/if}
         {/if}
       {/each}
     </g>
+    <g id="treemap-tooltip" class="tooltip" />
     {#if (bilaterals?.length ?? 0) === 0}
       <rect
         x="0"
@@ -256,7 +473,6 @@
         text-anchor="middle">{loadingDrilldown ? "Loading..." : "No Data"}</text
       >
     {/if}
-    <g id="treemap-tooltip" class="tooltip" />
   </svg>
 </div>
 

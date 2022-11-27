@@ -3,8 +3,9 @@
   import * as d3 from "d3";
   import { sectors, years } from "../global/store";
   import {
-    BilateralTradeYear, type Location,
-    type Product
+    BilateralTradeYear,
+    type Location,
+    type Product,
   } from "../models/models";
 
   export let data: {
@@ -57,7 +58,8 @@
 
   let width = 800;
   let height = 400;
-  const formatter = (val: number) => d3.format("$.2s")(val).replace(/G/, "B");
+  const formatter = (val: number) => d3.format("$.3s")(val).replace(/G/, "B");
+  const moreAccurateFormatter = (val: number) => d3.format("$,~s")(val).replace(/G/, "B");
 
   let xAxisElem: SVGGElement;
   let y1AxisElem: SVGGElement;
@@ -151,10 +153,6 @@
   $: minNetValue =
     d3.min(tradeYearGrossValues, (d) => d.export_value - d.import_value) ?? 0;
 
-  $: {
-    console.log(maxNetValue, minNetValue);
-  }
-
   $: yScaleNetValues = d3
     .scaleLinear()
     .domain([
@@ -166,7 +164,13 @@
 
   $: {
     let xAxis = d3.axisBottom(xScale).tickFormat(d3.format("d"));
-    d3.select(xAxisElem).transition().call(xAxis);
+
+    d3.select(xAxisElem)
+      .transition()
+      .call(xAxis)
+      .select(".domain")
+      .attr("stroke-width", 0);
+
     let y1Axis = d3
       .axisLeft(yScaleGrossValues)
       .tickFormat((v) => formatter(v as number));
@@ -348,9 +352,7 @@
     };
   }
 
-  function mouseOverBar(
-    bt: BilateralTradeYear
-  ): (e: any) => void {
+  function mouseOverBar(bt: BilateralTradeYear): (e: any) => void {
     return (e: any) => {
       let tooltip = d3.select("#line-chart-tooltip");
       let netValue = bt.export_value - bt.import_value;
@@ -361,28 +363,39 @@
         .attr("width", TOOLTIP_RECT_WIDTH)
         .attr("height", TOOLTIP_RECT_HEIGHT_BASE)
         .attr("x", getTooltipX(e.layerX, TOOLTIP_OFFSET))
-        .attr("y", getTooltipY(e.layerY, TOOLTIP_OFFSET, TOOLTIP_RECT_HEIGHT_BASE));
+        .attr(
+          "y",
+          getTooltipY(e.layerY, TOOLTIP_OFFSET, TOOLTIP_RECT_HEIGHT_BASE)
+        );
 
       tooltip
         .append("text")
         .attr("class", "title")
         .attr("id", "tooltip-text1")
         .attr("x", getTooltipX(e.layerX, TEXT_OFFSET_X))
-        .attr("y", getTooltipY(e.layerY, TEXT_OFFSET_Y_TITLE, TOOLTIP_RECT_HEIGHT_BASE))
-        .style(
-          "fill",
-          netValue < 0
-            ? deficit
-            : surplus
+        .attr(
+          "y",
+          getTooltipY(e.layerY, TEXT_OFFSET_Y_TITLE, TOOLTIP_RECT_HEIGHT_BASE)
         )
+        .style("fill", netValue < 0 ? deficit : surplus)
         .text(`${bt.year} ` + (netValue < 0 ? "Deficit" : "Surplus"));
 
-        tooltip
+      tooltip
         .append("text")
         .attr("id", "tooltip-text2")
         .attr("x", getTooltipX(e.layerX, TEXT_OFFSET_X))
-        .attr("y", getTooltipY(e.layerY, TEXT_OFFSET_Y_BASE + TEXT_OFFSET_Y_INCRE, TOOLTIP_RECT_HEIGHT_BASE))
-        .text(($sectors.size > 0 ? "Selected " : "") + `Total: ${formatter(Math.abs(bt.export_value - bt.import_value))}`);
+        .attr(
+          "y",
+          getTooltipY(
+            e.layerY,
+            TEXT_OFFSET_Y_BASE + TEXT_OFFSET_Y_INCRE,
+            TOOLTIP_RECT_HEIGHT_BASE
+          )
+        )
+        .text(
+          ($sectors.size > 0 ? "Selected " : "") +
+            `Total: ${formatter(Math.abs(bt.export_value - bt.import_value))}`
+        );
     };
   }
 
@@ -390,15 +403,25 @@
     return (e: any) => {
       d3.select("#tooltip-rect")
         .attr("x", getTooltipX(e.layerX, TOOLTIP_OFFSET))
-        .attr("y", getTooltipY(e.layerY, TOOLTIP_OFFSET, TOOLTIP_RECT_HEIGHT_BASE));
+        .attr(
+          "y",
+          getTooltipY(e.layerY, TOOLTIP_OFFSET, TOOLTIP_RECT_HEIGHT_BASE)
+        );
       d3.select("#tooltip-text1")
         .attr("x", getTooltipX(e.layerX, TEXT_OFFSET_X))
-        .attr("y", getTooltipY(e.layerY, TEXT_OFFSET_Y_TITLE, TOOLTIP_RECT_HEIGHT_BASE));
+        .attr(
+          "y",
+          getTooltipY(e.layerY, TEXT_OFFSET_Y_TITLE, TOOLTIP_RECT_HEIGHT_BASE)
+        );
       d3.select("#tooltip-text2")
         .attr("x", getTooltipX(e.layerX, TEXT_OFFSET_X))
         .attr(
           "y",
-          getTooltipY(e.layerY, TEXT_OFFSET_Y_BASE + TEXT_OFFSET_Y_INCRE, TOOLTIP_RECT_HEIGHT_BASE)
+          getTooltipY(
+            e.layerY,
+            TEXT_OFFSET_Y_BASE + TEXT_OFFSET_Y_INCRE,
+            TOOLTIP_RECT_HEIGHT_BASE
+          )
         );
     };
   }
@@ -437,7 +460,8 @@
         // straight from the top
         return (
           yScaleNetValues(bt.export_value - bt.import_value) -
-          yScaleNetValues(maxNetValue)
+          MARGIN -
+          MARGIN_TOP
         );
       } else {
         return (
@@ -486,7 +510,17 @@
       id="xAxis"
       bind:this={xAxisElem}
       transform={`translate(${0},${height - MARGIN})`}
-    />
+    >
+      <line
+        id="xAxisLine"
+        x1={MARGIN_LEFT}
+        x2={width - MARGIN_RIGHT}
+        y1="0"
+        y2="0"
+        stroke="rgba(0,0,0,0.7)"
+        stroke-width="1"
+      />
+    </g>
     <g
       id="yAisLeft"
       bind:this={y1AxisElem}

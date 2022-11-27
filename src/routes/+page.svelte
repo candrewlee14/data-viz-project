@@ -125,7 +125,6 @@
       );
     });
   });
-
 </script>
 
 <svelte:head>
@@ -138,7 +137,11 @@
 </div>
 {#if locationData && bilateralData && productData && countryColorScale}
   <div class="selectors">
-    <img class="country-icon" src={getFlagUrl(country1?.code ?? "ATA")} />
+    <img
+      class="country-icon"
+      alt="Select a country"
+      src={getFlagUrl(country1?.code ?? "ATA")}
+    />
     <div class="dropdown">
       <span>Country</span>
       <Select
@@ -159,7 +162,11 @@
         on:select={onSelectCountry2}
       />
     </div>
-    <img class="country-icon" src={getFlagUrl(country2?.code ?? "ATA")} />
+    <img
+      class="country-icon"
+      alt="Select a partner"
+      src={getFlagUrl(country2?.code ?? "ATA")}
+    />
   </div>
   <div>
     <!-- <Range on:change={(e) => (year = e.detail.value)} /> -->
@@ -201,21 +208,8 @@
             country2,
             drilldownBilateral: drilldownBilateralForCountry,
             loadingDrilldown,
-            valueField: "export_value",
           }}
         />
-        <!-- <TreeMap
-          data={{
-            locationData,
-            productData,
-            productColorScale,
-            country1,
-            country2,
-            drilldownBilateral: drilldownBilateralForCountry,
-            loadingDrilldown,
-            valueField: "import_value",
-          }}
-        /> -->
       </div>
     </div>
   </div>
@@ -306,12 +300,16 @@
     font-weight: bold;
   }
 
+  :global(.tooltip > text.treemap) {
+    font-size: 12px;
+  }
+
   :global(.surplus) {
-    fill: "#66c2a5"
+    fill: "#66c2a5";
   }
 
   :global(.deficit) {
-    fill: "#fc8d62"
+    fill: "#fc8d62";
   }
 
   .selectors {
