@@ -1,8 +1,7 @@
 <script lang="ts">
   import * as d3 from "d3";
-  import { years, sectors, showExport } from "../global/store";
-  import { type Location, Product, BilateralTradeYear } from "../models/models";
-  import { Tooltip } from "../models/tooltip";
+  import { sectors, showExport, years } from "../global/store";
+  import { BilateralTradeYear, Product, type Location } from "../models/models";
 
   const formatter = (val: number) => d3.format("$.2s")(val).replace(/G/, "B");
 
@@ -38,13 +37,13 @@
     productData,
   } = data);
 
-  let treeMapTooltip: Tooltip = new Tooltip({
-    width: 800,
-    height: 400,
-    groupId: "treemap-tooltip",
-    countryColorScale: null,
-    productColorScale: productColorScale
-  })
+  // let treeMapTooltip: Tooltip = new Tooltip({
+  //   width: 800,
+  //   height: 400,
+  //   groupId: "treemap-tooltip",
+  //   countryColorScale: null,
+  //   productColorScale: productColorScale
+  // })
 
   $: innerDrilldownBilateral = drilldownBilateral?.get(country2?.id ?? 0);
 
@@ -209,9 +208,6 @@
                 });
               }
             }}
-            on:focus
-            on:mouseover={treeMapTooltip.mouseoverTreemap(leaf.data, false, $years)}
-            on:mouseleave={treeMapTooltip.mouseLeave}
           />
           {#if leaf.x1 - leaf.x0 > 40 && leaf.y1 - leaf.y0 > 10}
             <text

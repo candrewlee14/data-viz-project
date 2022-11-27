@@ -1,5 +1,5 @@
 <script lang="ts">
-    import type {Location} from "../models/models";
+    import type { Location } from "../models/models";
     export let locationMap : Map<number, Location>;
 </script>
 

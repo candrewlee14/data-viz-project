@@ -1,17 +1,14 @@
 <script lang="ts">
-  import * as d3 from "d3";
-  import { years, showExport } from "../global/store";
-  import {getFlagUrl} from "../global/flag";
-  import { Location, Product, BilateralTradeYear } from "../models/models";
-  import { onMount } from "svelte";
-  import Select from "svelte-select";
-  import Example from "../components/Example.svelte";
-  import LineChart from "../components/LineChart.svelte";
-  import BarChart from "../components/BarChart.svelte";
-  import Range from "../components/Range.svelte";
-  import TreeMap from "../components/TreeMap.svelte";
   import { browser } from "$app/environment";
   import { base } from "$app/paths";
+  import * as d3 from "d3";
+  import { onMount } from "svelte";
+  import Select from "svelte-select";
+  import BarChart from "../components/BarChart.svelte";
+  import LineChart from "../components/LineChart.svelte";
+  import TreeMap from "../components/TreeMap.svelte";
+  import { getFlagUrl } from "../global/flag";
+  import { BilateralTradeYear, Location, Product } from "../models/models";
 
   const optionIdentifier = "id";
   const labelIdentifier = "name";
@@ -55,7 +52,7 @@
   // reduce bilateralData
 
   // $: bilateralDataForYear = d3.rollup(allTrades?.filter((d) => $years.includes(d.year))
-  //   (d) => 
+  //   (d) =>
   // );
 
   // maps by partner id then by year
@@ -108,7 +105,7 @@
         bls,
         (v) => v.location_id,
         (v) => v.partner_id,
-        (v) => v.year,
+        (v) => v.year
       );
 
       allTrades = bls;
@@ -141,9 +138,7 @@
 </div>
 {#if locationData && bilateralData && productData && countryColorScale}
   <div class="selectors">
-    <img class="country-icon"
-      src={getFlagUrl(country1?.code ?? "ATA")}
-    />
+    <img class="country-icon" src={getFlagUrl(country1?.code ?? "ATA")} />
     <div class="dropdown">
       <span>Country</span>
       <Select
@@ -164,9 +159,7 @@
         on:select={onSelectCountry2}
       />
     </div>
-    <img class="country-icon"
-      src={getFlagUrl(country2?.code ?? "ATA")}
-    />
+    <img class="country-icon" src={getFlagUrl(country2?.code ?? "ATA")} />
   </div>
   <div>
     <!-- <Range on:change={(e) => (year = e.detail.value)} /> -->
@@ -303,14 +296,22 @@
     opacity: 0.6;
     rx: 15px;
     ry: 15px;
-	}
+  }
 
   :global(.tooltip > text) {
-    font-size: 20px;
+    font-size: 16px;
   }
   :global(.tooltip > text.title) {
-    font-size: 25px;
+    font-size: 20px;
     font-weight: bold;
+  }
+
+  :global(.surplus) {
+    fill: "#66c2a5"
+  }
+
+  :global(.deficit) {
+    fill: "#fc8d62"
   }
 
   .selectors {

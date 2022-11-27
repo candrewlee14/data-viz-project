@@ -1,14 +1,9 @@
 <script lang="ts">
   import * as d3 from "d3";
-  import { sectors, showExport } from "../global/store";
-  import { Location, Product, BilateralTradeYear } from "../models/models";
-  import { onMount } from "svelte";
-  import { years } from "../global/store";
-  import { fade, fly } from "svelte/transition";
   import { flip } from "svelte/animate";
-  import { format, schemeDark2, select, tsv } from "d3";
-  import *  as ct from "../global/constants";
-  import { Tooltip } from "../models/tooltip";
+  import { fade } from "svelte/transition";
+  import { sectors, showExport, years } from "../global/store";
+  import { BilateralTradeYear, Location, Product } from "../models/models";
 
   export let data: {
     productData: Map<number, Product>;
@@ -66,6 +61,15 @@
   const MARGIN_TOP = 30;
   const PRODUCT_WIDTH = 100;
   const ROW_SPACE = 4;
+
+  const TOOLTIP_OFFSET = 10;
+  const TOOLTIP_RECT_WIDTH_BASE = 140;
+  const TOOLTIP_RECT_WIDTH_INCRE = 25;
+  const TOOLTIP_RECT_HEIGHT = 105;
+  const TEXT_OFFSET_X = 20;
+  const TEXT_OFFSET_Y_BASE = 35;
+  const TEXT_OFFSET_Y_INCRE = 22;
+
   const formatter = (val: number) => d3.format("$.3s")(val).replace(/G/, "B");
 
   // The bar chart needs to include all of the years
@@ -146,6 +150,16 @@
 
   $: maxOverall = Math.max(maxExport, maxImport);
 
+  $: sumExport = d3.sum(
+    innerDataAll,
+    (v: BilateralTradeYear) => v.export_value
+  ) as number;
+
+  $: sumImport = d3.sum(
+    innerDataAll,
+    (v: BilateralTradeYear) => v.import_value
+  ) as number;
+
   $: barScale = d3
     .scaleLinear()
     .domain([-maxExport, maxImport])
@@ -158,13 +172,137 @@
     d3.select(axisElem).transition().call(axis);
   }
 
-  let barChartTooltip: Tooltip = new Tooltip({
-    width: width,
-    height: 350,
-    groupId: "#bar-chart-tooltip",
-    countryColorScale: countryColorScale,
-    proudctColorScale: null,
-  })
+  function getTooltipX(
+    eventX: number,
+    offsetX: number,
+    tooltipWidth: number
+  ): number {
+    if (eventX + tooltipWidth < width) {
+      return eventX + offsetX;
+    } else {
+      return eventX + offsetX - tooltipWidth;
+    }
+  }
+
+  function getTooltipY(eventY: number, offsetY: number): number {
+    if (eventY + TOOLTIP_RECT_HEIGHT < 350) {
+      return eventY + offsetY;
+    } else {
+      return eventY + offsetY - TOOLTIP_RECT_HEIGHT;
+    }
+  }
+
+  function mouseOver(
+    bt: BilateralTradeYear,
+    isExport: boolean
+  ): (e: any) => void {
+    return (e: any) => {
+      let tooltip = d3.select("#bar-chart-tooltip");
+      let tooltipWidth =
+        TOOLTIP_RECT_WIDTH_BASE + $years.length * TOOLTIP_RECT_WIDTH_INCRE;
+
+      tooltip
+        .append("rect")
+        .attr("id", "tooltip-rect")
+        .attr("width", tooltipWidth)
+        .attr("height", TOOLTIP_RECT_HEIGHT)
+        .attr("x", getTooltipX(e.layerX, TOOLTIP_OFFSET, tooltipWidth))
+        .attr("y", getTooltipY(e.layerY, TOOLTIP_OFFSET));
+
+      tooltip
+        .append("text")
+        .attr("class", "title")
+        .attr("id", "tooltip-text1")
+        .attr("x", getTooltipX(e.layerX, TEXT_OFFSET_X, tooltipWidth))
+        .attr("y", getTooltipY(e.layerY, TEXT_OFFSET_Y_BASE))
+        .style(
+          "fill",
+          countryColorScale
+            ? isExport
+              ? countryColorScale(bt.location_id)
+              : countryColorScale(bt.partner_id)
+            : "black"
+        )
+        .text(`${bt.product.name}`);
+
+      tooltip
+        .append("text")
+        .attr("id", "tooltip-text2")
+        .attr("x", getTooltipX(e.layerX, TEXT_OFFSET_X, tooltipWidth))
+        .attr(
+          "y",
+          getTooltipY(e.layerY, TEXT_OFFSET_Y_BASE + TEXT_OFFSET_Y_INCRE)
+        )
+        .text(
+          (isExport ? "Export: " : "Import: ") +
+            `${formatter(isExport ? bt.export_value : bt.import_value)}`
+        );
+
+      tooltip
+        .append("text")
+        .attr("id", "tooltip-text3")
+        .attr("x", getTooltipX(e.layerX, TEXT_OFFSET_X, tooltipWidth))
+        .attr(
+          "y",
+          getTooltipY(e.layerY, TEXT_OFFSET_Y_BASE + 2 * TEXT_OFFSET_Y_INCRE)
+        )
+        .text(
+          `Share: ${d3.format(".2%")(
+            isExport ? bt.export_value / sumExport : bt.import_value / sumImport
+          )}`
+        );
+
+      tooltip
+        .append("text")
+        .attr("id", "tooltip-text4")
+        .attr("x", getTooltipX(e.layerX, TEXT_OFFSET_X, tooltipWidth))
+        .attr(
+          "y",
+          getTooltipY(e.layerY, TEXT_OFFSET_Y_BASE + 3 * TEXT_OFFSET_Y_INCRE)
+        )
+        .text(
+          ($years.length > 1 ? "Years: " : "Year: ") + `${$years.join(", ")}`
+        );
+    };
+  }
+
+  function mouseMove(): (e: any) => void {
+    return (e: any) => {
+      let tooltipWidth =
+        TOOLTIP_RECT_WIDTH_BASE + $years.length * TOOLTIP_RECT_WIDTH_INCRE;
+      d3.select("#tooltip-rect")
+        .attr("x", getTooltipX(e.layerX, TOOLTIP_OFFSET, tooltipWidth))
+        .attr("y", getTooltipY(e.layerY, TOOLTIP_OFFSET));
+      d3.select("#tooltip-text1")
+        .attr("x", getTooltipX(e.layerX, TEXT_OFFSET_X, tooltipWidth))
+        .attr("y", getTooltipY(e.layerY, TEXT_OFFSET_Y_BASE));
+      d3.select("#tooltip-text2")
+        .attr("x", getTooltipX(e.layerX, TEXT_OFFSET_X, tooltipWidth))
+        .attr(
+          "y",
+          getTooltipY(e.layerY, TEXT_OFFSET_Y_BASE + TEXT_OFFSET_Y_INCRE)
+        );
+      d3.select("#tooltip-text3")
+        .attr("x", getTooltipX(e.layerX, TEXT_OFFSET_X, tooltipWidth))
+        .attr(
+          "y",
+          getTooltipY(e.layerY, TEXT_OFFSET_Y_BASE + 2 * TEXT_OFFSET_Y_INCRE)
+        );
+      d3.select("#tooltip-text4")
+        .attr("x", getTooltipX(e.layerX, TEXT_OFFSET_X, tooltipWidth))
+        .attr(
+          "y",
+          getTooltipY(e.layerY, TEXT_OFFSET_Y_BASE + 3 * TEXT_OFFSET_Y_INCRE)
+        );
+    };
+  }
+
+  function mouseLeave(): (e: any) => void {
+    return (e: any) => {
+      d3.select("#bar-chart-tooltip").selectAll("rect").remove();
+      d3.select("#bar-chart-tooltip").selectAll("text").remove();
+    };
+  }
 </script>
 
 <div
@@ -282,7 +420,7 @@
               x="0"
               y="2"
               height={ROW_HEIGHT - 4}
-              width={($sectors.size > 0 && $sectors.has(bt.product_id))
+              width={$sectors.size > 0 && $sectors.has(bt.product_id)
                 ? PRODUCT_WIDTH - 1
                 : 6}
               fill={productColorScale
@@ -298,27 +436,27 @@
               width={barScale(0) - barScale(-bt.export_value)}
               fill={countryColorScale(bt.location_id)}
               on:focus
-              on:mouseover={barChartTooltip.mouseOverBarChart(bt, true, $years)}
-              on:mousemove={barChartTooltip.mouseMove($years)}
-              on:mouseleave={barChartTooltip.mouseLeave()}
+              on:mouseover={mouseOver(bt, true)}
+              on:mousemove={mouseMove()}
+              on:mouseleave={mouseLeave()}
               on:click={() => {
                 if (!$showExport) {
                   showExport.set(true);
                   sectors.update((s) => {
                     s.clear();
                     return s;
-                  })
+                  });
                 }
                 if ($sectors.has(bt?.product_id)) {
                   sectors.update((s) => {
                     s.delete(bt?.product_id ?? -1);
-                    console.log(s)
+                    console.log(s);
                     return s;
                   });
                 } else if (bt?.product_id >= 0) {
                   sectors.update((s) => {
                     s.add(bt?.product_id ?? -1);
-                    console.log(s)
+                    console.log(s);
                     return s;
                   });
                 }
@@ -332,27 +470,27 @@
               width={barScale(bt.import_value) - barScale(0)}
               fill={countryColorScale(bt.partner_id)}
               on:focus
-              on:mouseover={barChartTooltip.mouseOverBarChart(bt, false, $years)}
-              on:mousemove={barChartTooltip.mouseMove($years)}
-              on:mouseleave={barChartTooltip.mouseLeave()}
+              on:mouseover={mouseOver(bt, false)}
+              on:mousemove={mouseMove()}
+              on:mouseleave={mouseLeave()}
               on:click={() => {
                 if ($showExport) {
                   showExport.set(false);
                   sectors.update((s) => {
                     s.clear();
                     return s;
-                  })
+                  });
                 }
                 if ($sectors.has(bt?.product_id)) {
                   sectors.update((s) => {
                     s.delete(bt?.product_id ?? -1);
-                    console.log(s)
+                    console.log(s);
                     return s;
                   });
                 } else if (bt?.product_id >= 0) {
                   sectors.update((s) => {
                     s.add(bt?.product_id ?? -1);
-                    console.log(s)
+                    console.log(s);
                     return s;
                   });
                 }
