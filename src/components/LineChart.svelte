@@ -2,6 +2,7 @@
   import type { BrushSelection } from "d3";
   import * as d3 from "d3";
   import { sectors, years } from "../global/store";
+  import { fade } from "svelte/transition";
   import {
     BilateralTradeYear,
     type Location,
@@ -57,9 +58,10 @@
   const deficit = "#e41a1c";
 
   let width = 800;
-  let height = 400;
+  let height = 378;
   const formatter = (val: number) => d3.format("$.3s")(val).replace(/G/, "B");
-  const moreAccurateFormatter = (val: number) => d3.format("$,~s")(val).replace(/G/, "B");
+  const moreAccurateFormatter = (val: number) =>
+    d3.format("$,~s")(val).replace(/G/, "B");
 
   let xAxisElem: SVGGElement;
   let y1AxisElem: SVGGElement;
@@ -127,10 +129,8 @@
 
   $: xScale = d3
     .scaleLinear()
-    // .scaleBand()
     // @ts-ignore
     .domain(d3.extent(tradeYearGrossValues, (d) => d.year))
-    // .domain(tradeYearGrossValues.map(d => d.year).sort())
     .range([
       MARGIN_LEFT + BAND_WIDTH / 2,
       width - MARGIN_RIGHT - BAND_WIDTH / 2,
@@ -157,7 +157,7 @@
     .scaleLinear()
     .domain([
       d3.min(tradeYearGrossValues, (d) => d.export_value - d.import_value) ?? 0,
-      d3.max(tradeYearGrossValues, (d) => d.export_value - d.import_value) ?? 0,
+      d3.max(tradeYearGrossValues, (d) => d.export_value - d.import_value) ?? 0
     ])
     .range([height - MARGIN, MARGIN + MARGIN_TOP])
     .nice();
@@ -234,7 +234,7 @@
     offsetY: number,
     tooltipHeight: number
   ): number {
-    if (eventY + tooltipHeight < 350) {
+    if (eventY + tooltipHeight < height) {
       return eventY + offsetY;
     } else {
       return eventY + offsetY - TOOLTIP_RECT_HEIGHT_BASE;
@@ -434,7 +434,7 @@
   }
 
   // range([height - MARGIN, MARGIN + MARGIN_TOP])
-  function getY(bt: BilateralTradeYear) {
+  function getNetValueBarY(bt: BilateralTradeYear) {
     if (bt.export_value < bt.import_value) {
       // deficit
       if (maxNetValue < 0) {
@@ -454,7 +454,7 @@
     }
   }
 
-  function getHeight(bt: BilateralTradeYear) {
+  function getNetValueBarHeight(bt: BilateralTradeYear) {
     if (bt.export_value < bt.import_value) {
       if (maxNetValue < 0) {
         // straight from the top
@@ -472,6 +472,7 @@
     } else {
       // surplus
       if (minNetValue > 0) {
+        // straight from the bottom
         return (
           height - MARGIN - yScaleNetValues(bt.export_value - bt.import_value)
         );
@@ -492,180 +493,199 @@
   bind:clientHeight={height}
 >
   <svg {width} {height}>
-    <text class="chart-header" x={width / 2} y={MARGIN - 5} text-anchor="middle"
-      >Total Trade Over Time</text
-    >
-    <g class="brush" bind:this={brushElem} />
-    {#if !isBrushing}
-      <rect
-        class="timebar"
-        x={xScale($years[0]) - 12}
-        y={44}
-        width="24"
-        height={height - 44 - MARGIN}
-        fill="rgba(0,0,0,0.2)"
-      />
-    {/if}
-    <g
-      id="xAxis"
-      bind:this={xAxisElem}
-      transform={`translate(${0},${height - MARGIN})`}
-    >
-      <line
-        id="xAxisLine"
-        x1={MARGIN_LEFT}
-        x2={width - MARGIN_RIGHT}
-        y1="0"
-        y2="0"
-        stroke="rgba(0,0,0,0.7)"
-        stroke-width="1"
-      />
-    </g>
-    <g
-      id="yAisLeft"
-      bind:this={y1AxisElem}
-      transform={`translate(${MARGIN_LEFT},${0})`}
-    />
-    <g
-      id="yAisRight"
-      bind:this={y2AxisElem}
-      transform={`translate(${width - MARGIN_RIGHT},${0})`}
-    />
-    <g id="legendLeft" transform="translate(10,6)">
-      <circle
-        class="circ1"
-        cx="20"
-        cy="10"
-        r="5"
-        fill={countryColorScale(country1)}
-        stroke="rgba(0,0,0,0)"
-        stroke-width="2"
-      />
-      <text x="30" y="15" text-anchor="start">Export</text>
-      <circle
-        class="circ2"
-        cx="20"
-        cy="25"
-        r="5"
-        fill={countryColorScale(country2)}
-        stroke="rgba(0,0,0,0)"
-        stroke-width="2"
-      />
-      <text x="30" y="30" text-anchor="start">Import</text>
-    </g>
-    <g
-      id="legendRight"
-      transform={`translate(${width - 2 * MARGIN_RIGHT + 5},6)`}
-    >
-      <rect
-        class="deficit"
-        x="15"
-        y="5"
-        width="10"
-        height="10"
-        fill={deficit}
-        opacity="0.6"
-      />
-      <text x="30" y="15" text-anchor="start">Deficit</text>
-      <rect
-        class="surplus"
-        x="15"
-        y="20"
-        width="10"
-        height="10"
-        fill={surplus}
-        opacity="0.6"
-      />
-      <text x="30" y="30" text-anchor="start">Surplus</text>
-    </g>
-    <g id="net-values-group">
-      {#if maxNetValue > 0 && minNetValue < 0}
+    {#if tradeYearGrossValues.length > 0}
+      <text
+        class="chart-header"
+        x={width / 2}
+        y={MARGIN - 5}
+        text-anchor="middle">Total Trade Over Time</text
+      >
+      <g class="brush" bind:this={brushElem} />
+      {#if !isBrushing}
+        <rect
+          class="timebar"
+          x={xScale($years[0]) - 12}
+          y={44}
+          width="24"
+          height={height - 44 - MARGIN}
+          fill="rgba(0,0,0,0.2)"
+        />
+      {/if}
+      <g
+        id="xAxis"
+        bind:this={xAxisElem}
+        transform={`translate(${0},${height - MARGIN})`}
+      >
         <line
-          id="zeroline"
+          id="xAxisLine"
           x1={MARGIN_LEFT}
           x2={width - MARGIN_RIGHT}
-          y1={yScaleNetValues(0)}
-          y2={yScaleNetValues(0)}
+          y1="0"
+          y2="0"
           stroke="rgba(0,0,0,0.7)"
           stroke-width="1"
         />
-      {/if}
-      {#each tradeYearGrossValues as bt (bt.year)}
-        <rect
-          x={xScale(bt.year) - BAND_WIDTH / 2}
-          width={BAND_WIDTH}
-          y={getY(bt)}
-          height={getHeight(bt)}
-          fill={bt.export_value < bt.import_value ? "#e41a1c" : "#4daf4a"}
-          stroke={$years.includes(bt.year) ? "rgba(0,0,0,1)" : "rgba(0,0,0,0)"}
-          opacity="0.6"
-          on:click={updateYear(bt.year)}
-          on:keydown={() => {}}
-          on:keypress
-          on:click={updateYear(bt.year)}
-          on:focus
-          on:blur
-          on:mouseover={mouseOverBar(bt)}
-          on:mousemove={mouseMove()}
-          on:mouseout={mouseOut()}
-        />
-      {/each}
-    </g>
-    <g class="country1-group country-group">
-      <path
-        bind:this={country1Line}
-        fill="none"
-        stroke={countryColorScale(country1)}
-        stroke-width="2"
+      </g>
+      <g
+        id="yAisLeft"
+        bind:this={y1AxisElem}
+        transform={`translate(${MARGIN_LEFT},${0})`}
       />
-      {#each tradeYearGrossValues as bt (bt.year)}
+      <g
+        id="yAisRight"
+        bind:this={y2AxisElem}
+        transform={`translate(${width - MARGIN_RIGHT},${0})`}
+      />
+      <g id="legendLeft" transform="translate(10,6)">
         <circle
           class="circ1"
-          cx={xScale(bt.year)}
-          cy={yScaleGrossValues(bt.export_value)}
-          r="6"
+          cx="20"
+          cy="10"
+          r="5"
           fill={countryColorScale(country1)}
-          stroke={$years.includes(bt.year) ? "rgba(0,0,0,1)" : "rgba(0,0,0,0)"}
+          stroke="rgba(0,0,0,0)"
           stroke-width="2"
-          on:click={updateYear(bt.year)}
-          on:keydown={() => {}}
-          on:keypress
-          on:click={updateYear(bt.year)}
-          on:focus
-          on:blur
-          on:mouseover={mouseOverCircle(bt, true)}
-          on:mouseout={mouseOut()}
         />
-      {/each}
-    </g>
-    <g class="country2-group country-group">
-      <path
-        bind:this={country2Line}
-        fill="none"
-        stroke={countryColorScale(country2)}
-        stroke-width="2"
-      />
-      {#each tradeYearGrossValues as bt (bt.year)}
+        <text x="30" y="15" text-anchor="start">Export</text>
         <circle
-          cx={xScale(bt.year)}
-          cy={yScaleGrossValues(bt.import_value)}
-          r="6"
+          class="circ2"
+          cx="20"
+          cy="25"
+          r="5"
           fill={countryColorScale(country2)}
-          stroke={$years.includes(bt.year) ? "rgba(0,0,0,1)" : "rgba(0,0,0,0)"}
+          stroke="rgba(0,0,0,0)"
           stroke-width="2"
-          on:click={updateYear(bt.year)}
-          on:keydown={() => {}}
-          on:keypress
-          on:click={updateYear(bt.year)}
-          on:focus
-          on:blur
-          on:mouseover={mouseOverCircle(bt, false)}
-          on:mouseout={mouseOut()}
         />
-      {/each}
-    </g>
-    <g />
-    <g id="line-chart-tooltip" class="tooltip" />
+        <text x="30" y="30" text-anchor="start">Import</text>
+      </g>
+      <g
+        id="legendRight"
+        transform={`translate(${width - 2 * MARGIN_RIGHT + 5},6)`}
+      >
+        <rect
+          class="deficit"
+          x="15"
+          y="5"
+          width="10"
+          height="10"
+          fill={deficit}
+          opacity="0.6"
+        />
+        <text x="30" y="15" text-anchor="start">Deficit</text>
+        <rect
+          class="surplus"
+          x="15"
+          y="20"
+          width="10"
+          height="10"
+          fill={surplus}
+          opacity="0.6"
+        />
+        <text x="30" y="30" text-anchor="start">Surplus</text>
+      </g>
+      <g id="net-values-group">
+        {#if maxNetValue > 0 && minNetValue < 0}
+          <line
+            id="zeroline"
+            x1={MARGIN_LEFT}
+            x2={width - MARGIN_RIGHT}
+            y1={yScaleNetValues(0)}
+            y2={yScaleNetValues(0)}
+            stroke="rgba(0,0,0,0.7)"
+            stroke-width="1"
+          />
+        {/if}
+        {#each tradeYearGrossValues as bt (bt.year)}
+          <rect
+            x={xScale(bt.year) - BAND_WIDTH / 2}
+            width={BAND_WIDTH}
+            y={getNetValueBarY(bt)}
+            height={getNetValueBarHeight(bt)}
+            fill={bt.export_value < bt.import_value ? deficit : surplus}
+            stroke={$years.includes(bt.year)
+              ? "rgba(0,0,0,1)"
+              : "rgba(0,0,0,0)"}
+            opacity="0.6"
+            on:click={updateYear(bt.year)}
+            on:keydown={() => {}}
+            on:keypress
+            on:click={updateYear(bt.year)}
+            on:focus
+            on:blur
+            on:mouseover={mouseOverBar(bt)}
+            on:mousemove={mouseMove()}
+            on:mouseout={mouseOut()}
+          />
+        {/each}
+      </g>
+      <g class="country1-group country-group">
+        <path
+          bind:this={country1Line}
+          fill="none"
+          stroke={countryColorScale(country1)}
+          stroke-width="2"
+        />
+        {#each tradeYearGrossValues as bt (bt.year)}
+          <circle
+            class="circ1"
+            cx={xScale(bt.year)}
+            cy={yScaleGrossValues(bt.export_value)}
+            r="6"
+            fill={countryColorScale(country1)}
+            stroke={$years.includes(bt.year)
+              ? "rgba(0,0,0,1)"
+              : "rgba(0,0,0,0)"}
+            stroke-width="2"
+            on:click={updateYear(bt.year)}
+            on:keydown={() => {}}
+            on:keypress
+            on:click={updateYear(bt.year)}
+            on:focus
+            on:blur
+            on:mouseover={mouseOverCircle(bt, true)}
+            on:mouseout={mouseOut()}
+          />
+        {/each}
+      </g>
+      <g class="country2-group country-group">
+        <path
+          bind:this={country2Line}
+          fill="none"
+          stroke={countryColorScale(country2)}
+          stroke-width="2"
+        />
+        {#each tradeYearGrossValues as bt (bt.year)}
+          <circle
+            cx={xScale(bt.year)}
+            cy={yScaleGrossValues(bt.import_value)}
+            r="6"
+            fill={countryColorScale(country2)}
+            stroke={$years.includes(bt.year)
+              ? "rgba(0,0,0,1)"
+              : "rgba(0,0,0,0)"}
+            stroke-width="2"
+            on:click={updateYear(bt.year)}
+            on:keydown={() => {}}
+            on:keypress
+            on:click={updateYear(bt.year)}
+            on:focus
+            on:blur
+            on:mouseover={mouseOverCircle(bt, false)}
+            on:mouseout={mouseOut()}
+          />
+        {/each}
+      </g>
+      <g />
+      <g id="line-chart-tooltip" class="tooltip" />''
+    {:else}
+      <text
+        in:fade
+        x={width / 2}
+        y={height / 2}
+        alignment-baseline="central"
+        text-anchor="middle">No valid data for this pair.</text
+      >
+    {/if}
   </svg>
   <!-- <p>{formatter(tradeYearTotals.export_value ?? 0)}</p>
   <p>{formatter(tradeYearTotals.import_value ?? 0)}</p>

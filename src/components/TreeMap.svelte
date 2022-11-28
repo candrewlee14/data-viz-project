@@ -1,5 +1,6 @@
 <script lang="ts">
   import * as d3 from "d3";
+  import { construct_svelte_component } from "svelte/internal";
   import { sectors, showExport, years } from "../global/store";
   import { BilateralTradeYear, Product, type Location } from "../models/models";
 
@@ -34,13 +35,18 @@
     productData,
   } = data);
 
-  // let treeMapTooltip: Tooltip = new Tooltip({
-  //   width: 800,
-  //   height: 400,
-  //   groupId: "treemap-tooltip",
-  //   countryColorScale: null,
-  //   productColorScale: productColorScale
-  // })
+  const TREEMAP_VIZ_WIDTH = 800;
+  const TREEMAP_VIZ_HEIGHT = 400;
+
+  const TOOLTIP_OFFSET = 10;
+
+  const TOOLTIP_RECT_WIDTH_BASE = 120;
+  const TOOLTIP_RECT_WIDTH_INCRE = 25;
+  const TOOLTIP_RECT_HEIGHT = 90;
+
+  const TEXT_OFFSET_X = 20;
+  const TEXT_OFFSET_Y_BASE = 28;
+  const TEXT_OFFSET_Y_INCRE = 15;
 
   $: innerDrilldownBilateral = drilldownBilateral?.get(country2?.id ?? 0);
 
@@ -113,9 +119,6 @@
             .values()
         );
 
-  // export let country1: Location | null;
-  // export let country2: Location | null;
-
   interface LeafNode {
     data: BilateralTradeYear;
     x0: number;
@@ -123,14 +126,6 @@
     y0: number;
     y1: number;
   }
-
-  const TOOLTIP_OFFSET = 10;
-  const TOOLTIP_RECT_WIDTH_BASE = 140;
-  const TOOLTIP_RECT_WIDTH_INCRE = 25;
-  const TOOLTIP_RECT_HEIGHT = 90;
-  const TEXT_OFFSET_X = 20;
-  const TEXT_OFFSET_Y_BASE = 28;
-  const TEXT_OFFSET_Y_INCRE = 15;
 
   let width: number = 0;
   let height: number = 0;
@@ -234,22 +229,56 @@
   }
 
   function getTooltipY(eventY: number, offsetY: number): number {
-    if (eventY + TOOLTIP_RECT_HEIGHT < 350) {
+    if (eventY + TOOLTIP_RECT_HEIGHT < height) {
       return eventY + offsetY;
     } else {
       return eventY + offsetY - TOOLTIP_RECT_HEIGHT;
     }
   }
 
+  // function getTooltipXY(
+  //   e: any,
+  //   offsetX: number,
+  //   offsetY: number,
+  //   tooltipWidth: number
+  // ) {
+  //   const eventX = e.layerX;
+  //   const eventY = e.layerY;
+  //   let x, y: number;
+
+  //   if (eventX + tooltipWidth < width) {
+  //     if (eventY + TOOLTIP_RECT_HEIGHT < height) {
+  //       x = eventX + offsetX;
+  //       y = eventY + offsetY;
+  //     } else {
+  //       x = eventX + offsetX;
+  //       y = eventY + offsetY - TOOLTIP_RECT_HEIGHT;
+  //     }
+  //   } else {
+  //     if (eventY + TOOLTIP_RECT_HEIGHT < height) {
+  //       x = eventX + offsetX - tooltipWidth;
+  //       y = eventY + offsetY;
+  //     } else {
+  //       // special case
+  //       x = eventX + offsetX - tooltipWidth;
+  //       y = eventY + offsetY - TOOLTIP_RECT_HEIGHT;
+  //     }
+  //   }
+  //   return [x, y];
+  // }
+
   function mouseOver(bt: BilateralTradeYear): (e: any) => void {
     return (e: any) => {
-
-      // determine the length of the bt.product.name
-      // and then choose the width of the tooltip rect
-
       let tooltip = d3.select("#treemap-tooltip");
-      let tooltipWidth =
-        TOOLTIP_RECT_WIDTH_BASE + $years.length * TOOLTIP_RECT_WIDTH_INCRE;
+      let tooltipWidth = Math.max(
+        TOOLTIP_RECT_WIDTH_BASE + $years.length * TOOLTIP_RECT_WIDTH_INCRE,
+        TOOLTIP_RECT_WIDTH_BASE + 10 + (bt.product.name.length - 20) * 8
+      );
+
+      // let tooltipXY: [number, number];
+
+      console.log("x", getTooltipX(e.layerX, TOOLTIP_OFFSET, tooltipWidth));
+      console.log("y", getTooltipY(e.layerY, TOOLTIP_OFFSET));
 
       tooltip
         .append("rect")
@@ -330,13 +359,13 @@
     };
   }
 
-  function mouseMove(): (e: any) => void {
+  function mouseMove(bt: BilateralTradeYear): (e: any) => void {
     return (e: any) => {
-      // Determine the tooltipWidth
+      let tooltipWidth = Math.max(
+        TOOLTIP_RECT_WIDTH_BASE + $years.length * TOOLTIP_RECT_WIDTH_INCRE,
+        TOOLTIP_RECT_WIDTH_BASE + 10 + (bt.product.name.length - 20) * 8
+      );
 
-      let tooltipWidth =
-        TOOLTIP_RECT_WIDTH_BASE + $years.length * TOOLTIP_RECT_WIDTH_INCRE;
-      
       d3.select("#tooltip-rect")
         .attr("x", getTooltipX(e.layerX, TOOLTIP_OFFSET, tooltipWidth))
         .attr("y", getTooltipY(e.layerY, TOOLTIP_OFFSET));
@@ -376,6 +405,24 @@
       d3.select("#treemap-tooltip").selectAll("text").remove();
     };
   }
+
+  function onClick(bt: BilateralTradeYear): (e: any) => void {
+    return (e: any) => {
+      if (bt?.product?.parent && $sectors.has(bt?.product?.parent?.id)) {
+        sectors.update((s) => {
+          s.delete(bt?.product?.parent?.id ?? -1);
+          console.log(s);
+          return s;
+        });
+      } else if (bt?.product?.parent != null) {
+        sectors.update((s) => {
+          s.add(bt?.product?.parent?.id ?? -1);
+          console.log(s);
+          return s;
+        });
+      }
+    };
+  }
 </script>
 
 <div
@@ -396,27 +443,10 @@
               ? productColorScale(leaf.data?.product?.parent?.name ?? "")
               : "white"}
             on:keydown={() => {}}
-            on:click={() => {
-              if (
-                leaf.data?.product?.parent &&
-                $sectors.has(leaf.data?.product?.parent?.id)
-              ) {
-                sectors.update((s) => {
-                  s.delete(leaf.data?.product?.parent?.id ?? -1);
-                  console.log(s);
-                  return s;
-                });
-              } else if (leaf.data?.product?.parent != null) {
-                sectors.update((s) => {
-                  s.add(leaf.data?.product?.parent?.id ?? -1);
-                  console.log(s);
-                  return s;
-                });
-              }
-            }}
+            on:click={onClick(leaf.data)}
             on:focus
             on:mouseover={mouseOver(leaf.data)}
-            on:mousemove={mouseMove()}
+            on:mousemove={mouseMove(leaf.data)}
             on:mouseleave={mouseLeave()}
           />
           {#if leaf.x1 - leaf.x0 > 40 && leaf.y1 - leaf.y0 > 10}
@@ -425,9 +455,11 @@
               transform={`translate(${leaf.x0 + 3},${leaf.y0 + 3})`}
               alignment-baseline="hanging"
               font-size={Math.max((leaf.x1 - leaf.x0) / 15, 8)}
+              on:keydown={() => {}}
+              on:click={onClick(leaf.data)}
               on:focus
               on:mouseover={mouseOver(leaf.data)}
-              on:mousemove={mouseMove()}
+              on:mousemove={mouseMove(leaf.data)}
               on:mouseleave={mouseLeave()}
             >
               {leaf.data?.product.name?.substring(0, 40) ?? ""}
@@ -442,9 +474,11 @@
               alignment-baseline="hanging"
               font-size={Math.max((leaf.x1 - leaf.x0) / 15, 8) - 1}
               font-weight="300"
+              on:keydown={() => {}}
+              on:click={onClick(leaf.data)}
               on:focus
               on:mouseover={mouseOver(leaf.data)}
-              on:mousemove={mouseMove()}
+              on:mousemove={mouseMove(leaf.data)}
               on:mouseleave={mouseLeave()}
             >
               {formatter(
@@ -470,7 +504,10 @@
         x={width / 2}
         y={height / 2}
         alignment-baseline="central"
-        text-anchor="middle">{loadingDrilldown ? "Loading..." : "No Data"}</text
+        text-anchor="middle"
+        >{loadingDrilldown
+          ? "Loading..."
+          : "No valid data for this pair."}</text
       >
     {/if}
   </svg>

@@ -45,16 +45,6 @@
   >;
   let exportExtent: [number, number];
 
-  const radioButtonValues = ["Export", "Import"];
-
-  // $: bilateralDataForYear = bilateralData?.get($year) ?? new Map();
-
-  // reduce bilateralData
-
-  // $: bilateralDataForYear = d3.rollup(allTrades?.filter((d) => $years.includes(d.year))
-  //   (d) =>
-  // );
-
   // maps by partner id then by year
   let drilldownBilateralForCountry: Map<
     number,
@@ -138,7 +128,9 @@
 </svelte:head>
 
 <div class="heading">
-  <h1>Commerce among Nations</h1>
+  <h1>Commerce Among Nations</h1>
+  <!-- <h2>Nations are almost always better off when they trade with each other</h2>
+  <p>Commer Among Nations allows you to compare any two countries' trade to reveal 10+ years of trade flow across 1000+ goods.</p> -->
   <h2>A Bilateral Trade Data Visualization by Andrew Lee & Franklin Yuan</h2>
 </div>
 {#if locationData && bilateralData && productData && countryColorScale}
@@ -296,7 +288,7 @@
   }
   :global(.tooltip > rect) {
     fill: #f2f2f2;
-    opacity: 0.6;
+    opacity: 0.8;
     rx: 15px;
     ry: 15px;
   }

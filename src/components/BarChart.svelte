@@ -72,8 +72,6 @@
 
   const formatter = (val: number) => d3.format("$.3s")(val).replace(/G/, "B");
 
-  // The bar chart needs to include all of the years
-
   $: innerDataByYear = bilateralData
     ?.get(country1?.id ?? 0)
     ?.get(country2?.id ?? 0);
@@ -185,7 +183,7 @@
   }
 
   function getTooltipY(eventY: number, offsetY: number): number {
-    if (eventY + TOOLTIP_RECT_HEIGHT < 350) {
+    if (eventY + TOOLTIP_RECT_HEIGHT < height) {
       return eventY + offsetY;
     } else {
       return eventY + offsetY - TOOLTIP_RECT_HEIGHT;
