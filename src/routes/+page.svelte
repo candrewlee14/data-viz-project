@@ -79,6 +79,12 @@
     });
   }
 
+  function switchCountries() {
+    let tempCountry = country1;
+    country1 = country2;
+    country2 = tempCountry;
+  }
+
   onMount(async () => {
     Promise.all([
       d3.csv(`${base}/data/location.csv`),
@@ -132,7 +138,7 @@
 </svelte:head>
 
 <div class="heading">
-  <h1>Commerce Among Nations</h1>
+  <h1>Commerce among Nations</h1>
   <h2>A Bilateral Trade Data Visualization by Andrew Lee & Franklin Yuan</h2>
 </div>
 {#if locationData && bilateralData && productData && countryColorScale}
@@ -151,6 +157,9 @@
         value={country1}
         on:select={onSelectCountry1}
       />
+    </div>
+    <div class="switch-btn-container">
+      <button class="switch-btn" on:click={switchCountries}>↔</button>
     </div>
     <div class="dropdown">
       <span>Partner</span>
@@ -360,6 +369,18 @@
       stroke-linecap: round;
       animation: dash 1.5s ease-in-out infinite;
     }
+  }
+
+  .switch-btn-container {
+    position: relative;
+    width: 55px;
+  }
+  .switch-btn {
+    position: absolute;
+    width: 50px;
+    height: 30px;
+    bottom: 5px;
+    width: 100%;
   }
 
   @keyframes rotate {
