@@ -11,7 +11,7 @@
   import { getFlagUrl } from "../global/flag";
   import { sectors, years, showExport } from "../global/store";
   import { BilateralTradeYear, Location, Product } from "../models/models";
-  import * as feather from 'feather-icons';
+  import * as feather from "feather-icons";
 
   const optionIdentifier = "id";
   const labelIdentifier = "name";
@@ -139,8 +139,7 @@
     <a href="https://github.com/candrewlee14/data-viz-project" title="github">
       {@html feather.icons.github.toSvg()}
     </a>
-
-  </div> 
+  </div>
   <div class="heading">
     <h1>Commerce Among Nations</h1>
     <!-- <h2>Nations are almost always better off when they trade with each other</h2>
@@ -213,6 +212,16 @@
             }}
           />
         </div>
+        <div>
+          <p>
+            What did {country1?.name}
+            {$showExport ? "export to " : "import from "}
+            {country2?.name}
+            {$years.length > 1
+              ? `from ${$years[0]} to ${$years[$years.length - 1]}?`
+              : `in ${$years}?`}
+          </p>
+        </div>
         <div class="clear-sectors">
           {#if $sectors.size > 0}
             <button
@@ -259,10 +268,7 @@
 
 <style lang="scss">
   @import url("https://fonts.googleapis.com/css2?family=Lato:ital,wght@0,400;0,700;1,400&family=Roboto+Slab:wght@300;400;700&display=swap");
-  :global(div,
-  p,
-  text,
-  button) {
+  :global(div, p, text, button) {
     font-family: "Roboto Slab", serif;
   }
   .nav {
@@ -272,10 +278,12 @@
     display: flex;
     flex-direction: row;
     justify-content: end;
-    a, a:active, a:visited {
+    a,
+    a:active,
+    a:visited {
       margin-top: 25px;
       padding: 10px;
-      color:rgb(68, 68, 68);
+      color: rgb(68, 68, 68);
     }
   }
   :global(.feather) {
