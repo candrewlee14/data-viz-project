@@ -78,6 +78,14 @@
     country2 = tempCountry;
   }
 
+  function switchToShowingExport() {
+    $showExport = true;
+  }
+
+  function switchToShowingImport() {
+    $showExport = false;
+  }
+
   onMount(async () => {
     Promise.all([
       d3.csv(`${base}/data/location.csv`),
@@ -212,8 +220,19 @@
             }}
           />
         </div>
+        <div class="export-import-btn-container">
+          <span>Showing </span>
+          <button
+            class:btn-active={$showExport}
+            on:click={switchToShowingExport}>Export</button
+          >
+          <button
+            class:btn-active={!$showExport}
+            on:click={switchToShowingImport}>Import</button
+          >
+        </div>
         <div>
-          <p>
+          <p class="chart-header">
             What did {country1?.name}
             {$showExport ? "export to " : "import from "}
             {country2?.name}
@@ -350,6 +369,11 @@
     border: 2px solid rgba(0, 0, 0, 0.5);
     background-color: #a3a3a3;
   }
+
+  :global(.chart-header) {
+    font-size: 18px;
+    font-weight: bold;
+  }
   :global(.viz-section) {
     width: 800px;
     height: 41vh;
@@ -453,6 +477,15 @@
     height: 30px;
     bottom: 5px;
     width: 100%;
+  }
+
+  .export-import-btn-container {
+    position: relative;
+    width: 200px;
+  }
+
+  .btn-active {
+    background-color: pink;
   }
 
   @keyframes rotate {

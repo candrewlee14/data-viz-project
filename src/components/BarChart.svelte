@@ -577,10 +577,7 @@
     width: 100%;
     margin: 0;
   }
-  :global(.chart-header) {
-    font-size: 18px;
-    font-weight: bold;
-  }
+  
   rect {
     transition: all 0.4s ease;
   }
