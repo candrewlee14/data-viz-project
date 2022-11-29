@@ -309,7 +309,7 @@
   bind:clientHeight={height}
   class="viz-section"
 >
-  <svg>
+  <svg height={Math.max(height, ((tradeData?.length ?? 0) + 1) * ROW_HEIGHT + MARGIN_TOP)}>
     {#if tradeData && tradeData.length > 0}
       <text
         text-anchor="start"
@@ -570,7 +570,6 @@
   }
   svg {
     width: 100%;
-    height: 100%;
     margin: 0;
   }
   :global(.chart-header) {

@@ -4,10 +4,12 @@
   import * as d3 from "d3";
   import { onMount } from "svelte";
   import Select from "svelte-select";
+  import { fade } from "svelte/transition";
   import BarChart from "../components/BarChart.svelte";
   import LineChart from "../components/LineChart.svelte";
   import TreeMap from "../components/TreeMap.svelte";
   import { getFlagUrl } from "../global/flag";
+  import { sectors } from "../global/store";
   import { BilateralTradeYear, Location, Product } from "../models/models";
 
   const optionIdentifier = "id";
@@ -125,6 +127,7 @@
 
 <svelte:head>
   <link rel="icon" href={`${base}/favicon.png`} />
+  <title>Commerce Among Nations</title>
 </svelte:head>
 
 <div class="heading">
@@ -133,7 +136,7 @@
   <p>Commer Among Nations allows you to compare any two countries' trade to reveal 10+ years of trade flow across 1000+ goods.</p> -->
   <h2>A Bilateral Trade Data Visualization by Andrew Lee & Franklin Yuan</h2>
 </div>
-{#if locationData && bilateralData && productData && countryColorScale}
+{#if locationData && bilateralData && productData}
   <div class="selectors">
     <img
       class="country-icon"
@@ -199,6 +202,18 @@
           }}
         />
       </div>
+      <div class="clear-sectors">
+        {#if $sectors.size > 0}
+          <button
+            height="10"
+            in:fade={{duration:200}}
+            out:fade={{duration:200}}
+            on:click={() => {
+              sectors.set(new Set());
+            }}>Clear Sector Selection</button
+          >
+        {/if}
+      </div>
       <div class="viz-row">
         <TreeMap
           data={{
@@ -234,7 +249,7 @@
   @import url("https://fonts.googleapis.com/css2?family=Lato:ital,wght@0,400;0,700;1,400&family=Roboto+Slab:wght@300;400;700&display=swap");
   div,
   p,
-  text {
+  text, button {
     font-family: "Roboto Slab", serif;
   }
   .heading {
@@ -270,11 +285,31 @@
     // justify-content: center;
     // max-width: 1700px;
   }
+  .clear-sectors {
+    margin: 0 20px;
+    width: 1640px;
+    height: 10px;
+    display: flex;
+    flex-direction: row;
+    justify-content: end;
+    button {
+      position: absolute;
+    }
+  }
+  button {
+    border: 2px solid rgba(0,0,0,0.1);
+    transition: all 0.2s ease;
+    background-color: #dedede;
+  }
+  button:hover {
+    border: 2px solid rgba(0,0,0,0.5);
+    background-color: #a3a3a3;
+  }
   :global(.viz-section) {
     width: 800px;
-    height: 40vh;
+    height: 41vh;
     border: 2px solid rgba(0, 0, 0, 0.2);
-    margin: 20px;
+    margin: 20px 20px 5px 20px;
     padding: 0;
   }
   :global(.viz-section-full) {
@@ -289,8 +324,8 @@
   :global(.tooltip > rect) {
     fill: #f2f2f2;
     opacity: 0.8;
-    rx: 15px;
-    ry: 15px;
+    // rx: 15px;
+    // ry: 15px;
   }
 
   :global(.tooltip > text) {
