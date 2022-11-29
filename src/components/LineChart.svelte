@@ -157,7 +157,7 @@
     .scaleLinear()
     .domain([
       d3.min(tradeYearGrossValues, (d) => d.export_value - d.import_value) ?? 0,
-      d3.max(tradeYearGrossValues, (d) => d.export_value - d.import_value) ?? 0
+      d3.max(tradeYearGrossValues, (d) => d.export_value - d.import_value) ?? 0,
     ])
     .range([height - MARGIN, MARGIN + MARGIN_TOP])
     .nice();
@@ -496,9 +496,9 @@
     {#if tradeYearGrossValues.length > 0}
       <text
         class="chart-header"
-        x={width / 2}
+        x={width / 2 + 10}
         y={MARGIN - 5}
-        text-anchor="middle">Total Trade Over Time</text
+        text-anchor="middle">Trade Over Time</text
       >
       <g class="brush" bind:this={brushElem} />
       {#if !isBrushing}
@@ -546,7 +546,9 @@
           stroke="rgba(0,0,0,0)"
           stroke-width="2"
         />
-        <text x="30" y="15" text-anchor="start">Export</text>
+        <text x="30" y="15" font-size="13" text-anchor="start"
+          >Export {`to ${locationData.get(country2)?.name}` ?? ""}</text
+        >
         <circle
           class="circ2"
           cx="20"
@@ -556,11 +558,13 @@
           stroke="rgba(0,0,0,0)"
           stroke-width="2"
         />
-        <text x="30" y="30" text-anchor="start">Import</text>
+        <text x="30" y="30" font-size="13" text-anchor="start"
+          >Import {`from ${locationData.get(country2)?.name}` ?? ""}</text
+        >
       </g>
       <g
         id="legendRight"
-        transform={`translate(${width - 2 * MARGIN_RIGHT + 5},6)`}
+        transform={`translate(${width - 3 * MARGIN_RIGHT + 30},6)`}
       >
         <rect
           class="deficit"
@@ -571,7 +575,9 @@
           fill={deficit}
           opacity="0.6"
         />
-        <text x="30" y="15" text-anchor="start">Deficit</text>
+        <text x="30" y="15" font-size="13" text-anchor="start"
+          >Trade Deficit</text
+        >
         <rect
           class="surplus"
           x="15"
@@ -581,7 +587,9 @@
           fill={surplus}
           opacity="0.6"
         />
-        <text x="30" y="30" text-anchor="start">Surplus</text>
+        <text x="30" y="30" font-size="13" text-anchor="start"
+          >Trade Surplus</text
+        >
       </g>
       <g id="net-values-group">
         {#if maxNetValue > 0 && minNetValue < 0}

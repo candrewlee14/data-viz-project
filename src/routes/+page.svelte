@@ -9,7 +9,7 @@
   import LineChart from "../components/LineChart.svelte";
   import TreeMap from "../components/TreeMap.svelte";
   import { getFlagUrl } from "../global/flag";
-  import { sectors } from "../global/store";
+  import { sectors, years, showExport } from "../global/store";
   import { BilateralTradeYear, Location, Product } from "../models/models";
   import * as feather from 'feather-icons';
 

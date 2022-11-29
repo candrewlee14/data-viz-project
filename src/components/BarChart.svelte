@@ -309,7 +309,12 @@
   bind:clientHeight={height}
   class="viz-section"
 >
-  <svg height={Math.max(height, ((tradeData?.length ?? 0) + 1) * ROW_HEIGHT + MARGIN_TOP)}>
+  <svg
+    height={Math.max(
+      height,
+      ((tradeData?.length ?? 0) + 1) * ROW_HEIGHT + MARGIN_TOP
+    )}
+  >
     {#if tradeData && tradeData.length > 0}
       <text
         text-anchor="start"
@@ -335,7 +340,7 @@
       <text
         text-anchor="middle"
         class="chart-header sortable"
-        x={(width - PRODUCT_WIDTH) / 2 + PRODUCT_WIDTH}
+        x={(width - PRODUCT_WIDTH) / 2 + PRODUCT_WIDTH - 20}
         y={LABEL_HEIGHT / 2 - 7}
         alignment-baseline="hanging"
         on:click={() => {
@@ -355,7 +360,7 @@
       </text>
       <text
         class="from-label sortable"
-        x={PRODUCT_WIDTH + 20}
+        x={PRODUCT_WIDTH}
         y={LABEL_HEIGHT / 2 - 5}
         alignment-baseline="hanging"
         font-size="13"
@@ -368,7 +373,7 @@
           }
         }}
       >
-        From {country1?.name + " "}{sortMethod == SortMethod.LeftUp
+        Export to {country2?.name + " "}{sortMethod == SortMethod.LeftUp
           ? "↑"
           : sortMethod == SortMethod.LeftDown
           ? "↓"
@@ -394,7 +399,7 @@
           ? "↑"
           : sortMethod == SortMethod.RightDown
           ? "↓"
-          : " "}&nbsp;From {country2?.name}
+          : " "}&nbsp;Import from {country2?.name}
       </text>
       <g id="bar-content" transform={`translate(${0},${LABEL_HEIGHT})`}>
         {#each tradeData as bt, i (bt.product_id)}
@@ -434,7 +439,7 @@
               width={barScale(0) - barScale(-bt.export_value)}
               fill={countryColorScale(bt.location_id)}
               on:focus
-              on:keydown={()=>{}}
+              on:keydown={() => {}}
               on:mouseover={mouseOver(bt, true)}
               on:mousemove={mouseMove()}
               on:mouseleave={mouseLeave()}
@@ -469,7 +474,7 @@
               width={barScale(bt.import_value) - barScale(0)}
               fill={countryColorScale(bt.partner_id)}
               on:focus
-              on:keydown={()=>{}}
+              on:keydown={() => {}}
               on:mouseover={mouseOver(bt, false)}
               on:mousemove={mouseMove()}
               on:mouseleave={mouseLeave()}
