@@ -449,13 +449,13 @@
                 if ($sectors.has(bt?.product_id)) {
                   sectors.update((s) => {
                     s.delete(bt?.product_id ?? -1);
-                    console.log(s);
+                    // console.log(s);
                     return s;
                   });
                 } else if (bt?.product_id >= 0) {
                   sectors.update((s) => {
                     s.add(bt?.product_id ?? -1);
-                    console.log(s);
+                    // console.log(s);
                     return s;
                   });
                 }
@@ -484,13 +484,13 @@
                 if ($sectors.has(bt?.product_id)) {
                   sectors.update((s) => {
                     s.delete(bt?.product_id ?? -1);
-                    console.log(s);
+                    // console.log(s);
                     return s;
                   });
                 } else if (bt?.product_id >= 0) {
                   sectors.update((s) => {
                     s.add(bt?.product_id ?? -1);
-                    console.log(s);
+                    // console.log(s);
                     return s;
                   });
                 }

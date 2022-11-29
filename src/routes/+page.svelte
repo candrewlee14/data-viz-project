@@ -11,6 +11,7 @@
   import { getFlagUrl } from "../global/flag";
   import { sectors } from "../global/store";
   import { BilateralTradeYear, Location, Product } from "../models/models";
+  import * as feather from 'feather-icons';
 
   const optionIdentifier = "id";
   const labelIdentifier = "name";
@@ -130,134 +131,170 @@
   <title>Commerce Among Nations</title>
 </svelte:head>
 
-<div class="heading">
-  <h1>Commerce Among Nations</h1>
-  <!-- <h2>Nations are almost always better off when they trade with each other</h2>
+<div class="outer">
+  <div class="nav">
+    <a href={base + "/processbook"} title="process-book">
+      {@html feather.icons["book-open"].toSvg()}
+    </a>
+    <a href="https://github.com/candrewlee14/data-viz-project" title="github">
+      {@html feather.icons.github.toSvg()}
+    </a>
+
+  </div> 
+  <div class="heading">
+    <h1>Commerce Among Nations</h1>
+    <!-- <h2>Nations are almost always better off when they trade with each other</h2>
   <p>Commer Among Nations allows you to compare any two countries' trade to reveal 10+ years of trade flow across 1000+ goods.</p> -->
-  <h2>A Bilateral Trade Data Visualization by Andrew Lee & Franklin Yuan</h2>
+    <h2>A Bilateral Trade Data Visualization by Andrew Lee & Franklin Yuan</h2>
+  </div>
+  {#if locationData && bilateralData && productData}
+    <div class="selectors">
+      <img
+        class="country-icon"
+        alt="Select a country"
+        src={getFlagUrl(country1?.code ?? "ATA")}
+      />
+      <div class="dropdown">
+        <span>Country</span>
+        <Select
+          {optionIdentifier}
+          {labelIdentifier}
+          items={Array.from(locationData.values())}
+          value={country1}
+          on:select={onSelectCountry1}
+        />
+      </div>
+      <div class="switch-btn-container">
+        <button class="switch-btn" on:click={switchCountries}>↔</button>
+      </div>
+      <div class="dropdown">
+        <span>Partner</span>
+        <Select
+          {optionIdentifier}
+          {labelIdentifier}
+          items={Array.from(locationData.values())}
+          value={country2}
+          on:select={onSelectCountry2}
+        />
+      </div>
+      <img
+        class="country-icon"
+        alt="Select a partner"
+        src={getFlagUrl(country2?.code ?? "ATA")}
+      />
+    </div>
+    <div>
+      <!-- <Range on:change={(e) => (year = e.detail.value)} /> -->
+    </div>
+    <!-- <Example locationMap={locationData}/> -->
+    <div id="container">
+      <div id="content">
+        <div class="viz-row">
+          <LineChart
+            data={{
+              bilateralData,
+              country1_id: country1?.id ?? 0,
+              country2_id: country2?.id ?? 0,
+              productData,
+              locationData,
+              countryColorScale,
+            }}
+          />
+          <BarChart
+            data={{
+              productData,
+              locationData,
+              bilateralData,
+              loadingDrilldown,
+              productColorScale,
+              country1,
+              country2,
+              countryColorScale,
+            }}
+          />
+        </div>
+        <div class="clear-sectors">
+          {#if $sectors.size > 0}
+            <button
+              height="10"
+              in:fade={{ duration: 200 }}
+              out:fade={{ duration: 200 }}
+              on:click={() => {
+                sectors.set(new Set());
+              }}>Clear Sector Selection</button
+            >
+          {/if}
+        </div>
+        <div class="viz-row">
+          <TreeMap
+            data={{
+              locationData,
+              productData,
+              productColorScale,
+              country1,
+              country2,
+              drilldownBilateral: drilldownBilateralForCountry,
+              loadingDrilldown,
+            }}
+          />
+        </div>
+      </div>
+    </div>
+  {:else}
+    <div class="loading">
+      <h3>Loading data...</h3>
+      <svg class="spinner" viewBox="0 0 50 50">
+        <circle
+          class="path"
+          cx="25"
+          cy="25"
+          r="20"
+          fill="none"
+          stroke-width="5"
+        />
+      </svg>
+    </div>
+  {/if}
 </div>
-{#if locationData && bilateralData && productData}
-  <div class="selectors">
-    <img
-      class="country-icon"
-      alt="Select a country"
-      src={getFlagUrl(country1?.code ?? "ATA")}
-    />
-    <div class="dropdown">
-      <span>Country</span>
-      <Select
-        {optionIdentifier}
-        {labelIdentifier}
-        items={Array.from(locationData.values())}
-        value={country1}
-        on:select={onSelectCountry1}
-      />
-    </div>
-    <div class="switch-btn-container">
-      <button class="switch-btn" on:click={switchCountries}>↔</button>
-    </div>
-    <div class="dropdown">
-      <span>Partner</span>
-      <Select
-        {optionIdentifier}
-        {labelIdentifier}
-        items={Array.from(locationData.values())}
-        value={country2}
-        on:select={onSelectCountry2}
-      />
-    </div>
-    <img
-      class="country-icon"
-      alt="Select a partner"
-      src={getFlagUrl(country2?.code ?? "ATA")}
-    />
-  </div>
-  <div>
-    <!-- <Range on:change={(e) => (year = e.detail.value)} /> -->
-  </div>
-  <!-- <Example locationMap={locationData}/> -->
-  <div id="container">
-    <div id="content">
-      <div class="viz-row">
-        <LineChart
-          data={{
-            bilateralData,
-            country1_id: country1?.id ?? 0,
-            country2_id: country2?.id ?? 0,
-            productData,
-            locationData,
-            countryColorScale,
-          }}
-        />
-        <BarChart
-          data={{
-            productData,
-            locationData,
-            bilateralData,
-            loadingDrilldown,
-            productColorScale,
-            country1,
-            country2,
-            countryColorScale,
-          }}
-        />
-      </div>
-      <div class="clear-sectors">
-        {#if $sectors.size > 0}
-          <button
-            height="10"
-            in:fade={{duration:200}}
-            out:fade={{duration:200}}
-            on:click={() => {
-              sectors.set(new Set());
-            }}>Clear Sector Selection</button
-          >
-        {/if}
-      </div>
-      <div class="viz-row">
-        <TreeMap
-          data={{
-            locationData,
-            productData,
-            productColorScale,
-            country1,
-            country2,
-            drilldownBilateral: drilldownBilateralForCountry,
-            loadingDrilldown,
-          }}
-        />
-      </div>
-    </div>
-  </div>
-{:else}
-  <div class="loading">
-    <h3>Loading data...</h3>
-    <svg class="spinner" viewBox="0 0 50 50">
-      <circle
-        class="path"
-        cx="25"
-        cy="25"
-        r="20"
-        fill="none"
-        stroke-width="5"
-      />
-    </svg>
-  </div>
-{/if}
 
 <style lang="scss">
   @import url("https://fonts.googleapis.com/css2?family=Lato:ital,wght@0,400;0,700;1,400&family=Roboto+Slab:wght@300;400;700&display=swap");
-  div,
+  :global(div,
   p,
-  text, button {
+  text,
+  button) {
     font-family: "Roboto Slab", serif;
+  }
+  .nav {
+    position: absolute;
+    width: 99%;
+    padding: 0px;
+    display: flex;
+    flex-direction: row;
+    justify-content: end;
+    a, a:active, a:visited {
+      margin-top: 25px;
+      padding: 10px;
+      color:rgb(68, 68, 68);
+    }
+  }
+  :global(.feather) {
+    width: 40px;
+    height: 40px;
+  }
+  .outer {
+    padding: 0;
+    margin: 0;
+    width: 100%;
+    background-color: #f8f8f8;
+    min-height: 100vh;
   }
   .heading {
     width: 100%;
     display: flex;
     flex-direction: column;
     align-items: center;
-    margin-top: 30px;
+    padding-top: 30px;
   }
   h1 {
     font-size: 3rem;
@@ -297,12 +334,12 @@
     }
   }
   button {
-    border: 2px solid rgba(0,0,0,0.1);
+    border: 2px solid rgba(0, 0, 0, 0.1);
     transition: all 0.2s ease;
     background-color: #dedede;
   }
   button:hover {
-    border: 2px solid rgba(0,0,0,0.5);
+    border: 2px solid rgba(0, 0, 0, 0.5);
     background-color: #a3a3a3;
   }
   :global(.viz-section) {

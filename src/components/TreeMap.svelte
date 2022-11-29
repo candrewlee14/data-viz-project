@@ -137,7 +137,7 @@
     let bls = [];
     if ($sectors.size == 1) {
       let v = $sectors.entries().next().value[1] as number;
-      console.log(v);
+      // console.log(v);
       let bl = new BilateralTradeYear(new Map(), new Map(), {
         location_id: country1,
         partner_id: country2,
@@ -200,7 +200,7 @@
     }
 
     bls = bls.concat(bilaterals);
-    // console.log(bls);
+    // // console.log(bls);
 
     let treemapRoot = d3
       .stratify()
@@ -277,8 +277,8 @@
 
       // let tooltipXY: [number, number];
 
-      console.log("x", getTooltipX(e.layerX, TOOLTIP_OFFSET, tooltipWidth));
-      console.log("y", getTooltipY(e.layerY, TOOLTIP_OFFSET));
+      // console.log("x", getTooltipX(e.layerX, TOOLTIP_OFFSET, tooltipWidth));
+      // console.log("y", getTooltipY(e.layerY, TOOLTIP_OFFSET));
 
       tooltip
         .append("rect")
@@ -411,13 +411,13 @@
       if (bt?.product?.parent && $sectors.has(bt?.product?.parent?.id)) {
         sectors.update((s) => {
           s.delete(bt?.product?.parent?.id ?? -1);
-          console.log(s);
+          // console.log(s);
           return s;
         });
       } else if (bt?.product?.parent != null) {
         sectors.update((s) => {
           s.add(bt?.product?.parent?.id ?? -1);
-          console.log(s);
+          // console.log(s);
           return s;
         });
       }
