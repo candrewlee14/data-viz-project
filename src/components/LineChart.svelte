@@ -2,6 +2,8 @@
   import type { BrushSelection } from "d3";
   import * as d3 from "d3";
   import { sectors, years } from "../global/store";
+  import { country1Color, country2Color, deficit, surplus } from "../global/color";
+
   import { fade } from "svelte/transition";
   import {
     BilateralTradeYear,
@@ -55,11 +57,7 @@
   const TEXT_OFFSET_Y_BASE = 37;
   const TEXT_OFFSET_Y_INCRE = 22;
 
-  const surplus = "#4daf4a";
-  const deficit = "#e41a1c";
 
-  const country1Color = "#377eb8";
-  const country2Color = "#ff7f00";
 
   let width = 0;
   let height = 0;
@@ -643,8 +641,8 @@
             cx={xScale(bt.year)}
             cy={yScaleGrossValues(bt.export_value)}
             r={$years.includes(bt.year)
-              ? "7"
-              : "6"}
+              ? 8
+              : 7}
             fill={country1Color}
             stroke={$years.includes(bt.year)
               ? "rgba(0,0,0,1)"
@@ -710,6 +708,8 @@
 
 <style>
   .country-group circle {
+    cursor: pointer;
+    outline:none;
     transition: cx, cy 0.3s ease-in-out;
     /* stroke:white; */
   }
@@ -723,6 +723,8 @@
   }
 
   rect {
+    cursor: pointer;
+    outline:none;
     transition: all 0.4s ease;
   }
 </style>

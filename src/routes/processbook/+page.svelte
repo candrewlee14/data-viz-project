@@ -24,6 +24,8 @@
     height: 100px;
     display: flex;
     justify-content: center;
+    box-shadow: 0px 10px 15px -3px rgba(0, 0, 0, 0.1);
+    border-bottom: 2px solid rgba(0,0,0,0.1);
   }
   a {
     text-decoration: none;
@@ -37,6 +39,7 @@
     padding: 5px 25px;
   }
   iframe {
+    border-top: none;
     width: 100%;
     height: calc(100vh - 130px);
   }

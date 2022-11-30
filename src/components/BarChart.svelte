@@ -4,6 +4,7 @@
   import { fade } from "svelte/transition";
   import { sectors, showExport, years } from "../global/store";
   import { BilateralTradeYear, Location, Product } from "../models/models";
+  import { country1Color, country2Color } from "../global/color";
 
   export let data: {
     productData: Map<number, Product>;
@@ -69,13 +70,6 @@
   const TEXT_OFFSET_X = 20;
   const TEXT_OFFSET_Y_BASE = 35;
   const TEXT_OFFSET_Y_INCRE = 22;
-
-  const country1Color = "#377eb8";
-  const country2Color = "#ff7f00";
-
-  // const country1Color = "#f28e2c";
-  // const country2Color = "#4e79a7";
-  // ["#4e79a7","#f28e2c"]
 
   const formatter = (val: number) => d3.format("$.3s")(val).replace(/G/, "B");
 
@@ -583,6 +577,10 @@
 
   rect {
     transition: all 0.4s ease;
+    outline: none;
+  }
+  .country1-bar, .country2-bar {
+    cursor: pointer;
   }
   .tab {
     transition: all 0.1s ease;
@@ -592,6 +590,10 @@
   }
   .product-text {
     cursor: pointer;
+    transition: fill 0.1s ease-in-out;
+  }
+  .product-text:hover {
+    fill:rgb(96, 96, 96);
   }
   .sortable:hover {
     fill: rgb(121, 122, 134);

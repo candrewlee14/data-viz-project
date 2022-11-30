@@ -12,6 +12,7 @@
   import { sectors, years, showExport } from "../global/store";
   import { BilateralTradeYear, Location, Product } from "../models/models";
   import * as feather from "feather-icons";
+  import { country1Color, country2Color } from "../global/color";
 
   const optionIdentifier = "id";
   const labelIdentifier = "name";
@@ -144,13 +145,13 @@
     <a href={base + "/processbook"} title="process-book">
       {@html feather.icons["book-open"].toSvg()}
     </a>
-    <a href="https://www.youtube.com" title="screencast">
+    <a href="https://www.youtube.com" title="screencast" target="_blank" rel="noreferrer">
       {@html feather.icons.youtube.toSvg()}
     </a>
-    <a href="https://dataverse.harvard.edu/dataverse/atlas" title="data">
+    <a href="https://dataverse.harvard.edu/dataverse/atlas" title="data" target="_blank" rel="noreferrer">
       {@html feather.icons.database.toSvg()}
     </a>
-    <a href="https://github.com/candrewlee14/data-viz-project" title="github">
+    <a href="https://github.com/candrewlee14/data-viz-project" title="github" target="_blank" rel="noreferrer">
       {@html feather.icons.github.toSvg()}
     </a>
   </div>
@@ -165,7 +166,11 @@
         src={getFlagUrl(country1?.code ?? "ATA")}
       />
       <div class="dropdown">
-        <span>Country</span>
+        <div class="country-title">
+          <div style={`background-color:${country1Color}`}></div>
+          <span>Country</span>
+          <div style={`background-color:${country1Color}`}></div>
+        </div>
         <Select
           {optionIdentifier}
           {labelIdentifier}
@@ -178,7 +183,11 @@
         <button class="switch-btn" on:click={switchCountries}>↔</button>
       </div>
       <div class="dropdown">
-        <span>Partner</span>
+        <div class="country-title">
+          <div style={`background-color:${country2Color}`}></div>
+          <span>Partner</span>
+          <div style={`background-color:${country2Color}`}></div>
+        </div>
         <Select
           {optionIdentifier}
           {labelIdentifier}
@@ -228,10 +237,12 @@
             <span>Showing </span>
             <button
               class:btn-active={$showExport}
+              class:btn-inactive={!$showExport}
               on:click={switchToShowingExport}>Exports</button
             >
             <button
               class:btn-active={!$showExport}
+              class:btn-inactive={$showExport}
               on:click={switchToShowingImport}>Imports</button
             >
           </div>
@@ -301,6 +312,17 @@
   @import url("https://fonts.googleapis.com/css2?family=Lato:ital,wght@0,400;0,700;1,400&family=Roboto+Slab:wght@300;400;700&display=swap");
   :global(div, p, text, button) {
     font-family: "Roboto Slab", serif;
+  }
+  .country-title {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    div {
+      margin: 5px 5px 0 5px;
+      height: 6px;
+      width: 60px;
+    }
   }
   .nav {
     position: absolute;
@@ -392,7 +414,7 @@
   }
   button:hover {
     border: 2px solid rgba(0, 0, 0, 0.5);
-    background-color: #a3a3a3;
+    background-color: #b9b9b9;
   }
 
   footer {
@@ -478,9 +500,11 @@
     display: flex;
     flex-direction: row;
     justify-content: center;
+    background-color: transparent;
   }
 
   .spinner {
+    background-color: transparent;
     animation: rotate 2s linear infinite;
     z-index: 2;
     position: absolute;
@@ -513,8 +537,18 @@
     width: 100%;
   }
 
+  .switch-btn:hover {
+    background-color: #a3a3a3;
+  }
+
   .btn-active {
     background-color: #8dd3c7;
+  }
+  .btn-active:hover {
+    background-color: #5faa9d;
+  }
+  .btn-inactive {
+    color:rgb(153, 153, 153);
   }
 
   @keyframes rotate {
