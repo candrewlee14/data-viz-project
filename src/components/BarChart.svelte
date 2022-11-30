@@ -352,7 +352,10 @@
         }}
         on:keydown={() => {}}
       >
-        Trade Flow {sortMethod == SortMethod.Up
+        Trade Flow {$years.length > 1
+          ? `from ${$years[0]} to ${$years[$years.length - 1]}`
+          : `in ${$years}`}
+        {sortMethod == SortMethod.Up
           ? "↑"
           : sortMethod == SortMethod.Down
           ? "↓"
