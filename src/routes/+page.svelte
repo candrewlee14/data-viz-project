@@ -228,11 +228,11 @@
             <span>Showing </span>
             <button
               class:btn-active={$showExport}
-              on:click={switchToShowingExport}>Export</button
+              on:click={switchToShowingExport}>Exports</button
             >
             <button
               class:btn-active={!$showExport}
-              on:click={switchToShowingImport}>Import</button
+              on:click={switchToShowingImport}>Imports</button
             >
           </div>
           <div>
