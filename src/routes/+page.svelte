@@ -152,7 +152,6 @@
     <h1>Commerce Among Nations</h1>
     <!-- <h2>Nations are almost always better off when they trade with each other</h2>
   <p>Commer Among Nations allows you to compare any two countries' trade to reveal 10+ years of trade flow across 1000+ goods.</p> -->
-    <h2>A Bilateral Trade Data Visualization by Andrew Lee & Franklin Yuan</h2>
   </div>
   {#if locationData && bilateralData && productData}
     <div class="selectors">
@@ -220,6 +219,7 @@
             }}
           />
         </div>
+        <div class="spacer">
         <div class="export-import-btn-container">
           <span>Showing </span>
           <button
@@ -232,14 +232,15 @@
           >
         </div>
         <div>
-          <p class="chart-header">
-            What did {country1?.name}
+          <h2 class="chart-header">
+            What did 
+            <b>{country1?.name}</b>
             {$showExport ? "export to " : "import from "}
-            {country2?.name}
+            <b>{country2?.name}</b>
             {$years.length > 1
               ? `from ${$years[0]} to ${$years[$years.length - 1]}?`
               : `in ${$years}?`}
-          </p>
+          </h2>
         </div>
         <div class="clear-sectors">
           {#if $sectors.size > 0}
@@ -252,6 +253,7 @@
               }}>Clear Sector Selection</button
             >
           {/if}
+        </div>
         </div>
         <div class="viz-row">
           <TreeMap
@@ -268,6 +270,9 @@
         </div>
       </div>
     </div>
+    <footer>
+      <center>A Bilateral Trade Data Visualization by <b>Andrew Lee</b> & <b>Franklin Yuan</b></center>
+    </footer>
   {:else}
     <div class="loading">
       <h3>Loading data...</h3>
@@ -321,11 +326,15 @@
     display: flex;
     flex-direction: column;
     align-items: center;
-    padding-top: 30px;
+    padding-top: 15px;
+    padding-bottom: 20px;
+    margin-bottom: 15px;
+    box-shadow: 0px 10px 15px -3px rgba(0,0,0,0.1);    
+    background-color:rgb(255, 255, 255);
   }
   h1 {
-    font-size: 3rem;
-    margin: 0;
+    font-size: 2.5rem;
+    margin: 2px;
     padding: 0;
   }
   h2 {
@@ -350,14 +359,23 @@
     // max-width: 1700px;
   }
   .clear-sectors {
-    margin: 0 20px;
-    width: 1640px;
     height: 10px;
     display: flex;
     flex-direction: row;
-    justify-content: end;
     button {
       position: absolute;
+    }
+  }
+  .spacer {
+    display: grid;
+    margin: 0 20px;
+    width: 1640px;
+    height: 40px;
+    grid-template-columns: 1fr 3fr 1fr;
+    justify-items: center;
+    align-items: center;
+    h2 {
+      font-size: 1.3rem;
     }
   }
   button {
@@ -368,6 +386,11 @@
   button:hover {
     border: 2px solid rgba(0, 0, 0, 0.5);
     background-color: #a3a3a3;
+  }
+  
+  footer {
+    color:rgb(146, 146, 146);
+    padding: 20px 0 40px 0;
   }
 
   :global(.chart-header) {

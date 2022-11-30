@@ -8,6 +8,7 @@
     type Location,
     type Product,
   } from "../models/models";
+  import { onMount } from "svelte";
 
   export let data: {
     bilateralData: Map<
@@ -72,29 +73,6 @@
   let isBrushing: boolean = false;
   let sectorStrings: Array<string>;
 
-  // The line chart needs to include all of the sector information.
-  $: {
-    let brush = d3.brushX().on("start brush end", (e) => {
-      if (e?.selection === null || e?.selection[1] - e?.selection[0] < 5) {
-        years.set([2020]);
-        isBrushing = false;
-      } else {
-        isBrushing = true;
-        let selection = e.selection as BrushSelection;
-        const x0 = selection[0] as number;
-        const x1 = selection[1] as number;
-        let firstYear = Math.ceil(xScale.invert(x0));
-        let lastYear = Math.floor(xScale.invert(x1));
-        let selYears = [];
-        for (let i = firstYear; i <= lastYear; i++) {
-          selYears.push(i);
-        }
-        years.set(selYears);
-      }
-    });
-    d3.select(brushElem).call(brush);
-  }
-
   $: tradeYearGrossValues = Array.from(
     bilateralData?.get(country1)?.get(country2)?.entries() ?? new Array()
   )
@@ -146,6 +124,32 @@
     ])
     .range([height - MARGIN, MARGIN + MARGIN_TOP])
     .nice();
+
+  $: brushFunc = (e: any) => {
+      if (e?.selection === null || e?.selection[1] - e?.selection[0] < 5) {
+        years.set([2020]);
+        isBrushing = false;
+      } else {
+        isBrushing = true;
+        let selection = e.selection as BrushSelection;
+        const x0 = selection[0] as number;
+        const x1 = selection[1] as number;
+        let firstYear = Math.ceil(xScale.invert(x0));
+        let lastYear = Math.floor(xScale.invert(x1));
+        let selYears = [];
+        for (let i = firstYear; i <= lastYear; i++) {
+          selYears.push(i);
+        }
+        years.set(selYears);
+      }
+    };
+
+  $: {
+    let brush = d3.brushX()
+    .extent([[MARGIN_LEFT - 1, MARGIN + 10], [width - MARGIN_RIGHT + 1, height - MARGIN]])
+    .on("start brush end", brushFunc);
+    d3.select(brushElem).call(brush);
+  };
 
   $: maxNetValue =
     d3.max(tradeYearGrossValues, (d) => d.export_value - d.import_value) ?? 0;
@@ -452,7 +456,7 @@
         return yScaleNetValues(bt.export_value - bt.import_value);
       }
     }
-  }
+  };
 
   $: getNetValueBarHeight = (bt: BilateralTradeYear) => {
     if (bt.export_value < bt.import_value) {
@@ -483,7 +487,7 @@
         );
       }
     }
-  }
+  };
 </script>
 
 <div
@@ -507,7 +511,7 @@
           x={xScale($years[0]) - 12}
           y={44}
           width="24"
-          height={height - 44 - MARGIN}
+          height={(height - 44 - MARGIN) > 0 ? (height - 44 - MARGIN) : 0}
           fill="rgba(0,0,0,0.2)"
         />
       {/if}
@@ -608,7 +612,7 @@
             x={xScale(bt.year) - BAND_WIDTH / 2}
             width={BAND_WIDTH}
             y={getNetValueBarY(bt)}
-            height={getNetValueBarHeight(bt)}
+            height={getNetValueBarHeight(bt) > 0 ? getNetValueBarHeight(bt) : 0}
             fill={bt.export_value < bt.import_value ? deficit : surplus}
             stroke={$years.includes(bt.year)
               ? "rgba(0,0,0,1)"
