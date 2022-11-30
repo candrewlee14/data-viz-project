@@ -57,8 +57,8 @@
   const surplus = "#4daf4a";
   const deficit = "#e41a1c";
 
-  let width = 800;
-  let height = 378;
+  let width = 0;
+  let height = 0;
   const formatter = (val: number) => d3.format("$.3s")(val).replace(/G/, "B");
   const moreAccurateFormatter = (val: number) =>
     d3.format("$,~s")(val).replace(/G/, "B");
@@ -434,7 +434,7 @@
   }
 
   // range([height - MARGIN, MARGIN + MARGIN_TOP])
-  function getNetValueBarY(bt: BilateralTradeYear) {
+  $: getNetValueBarY = (bt: BilateralTradeYear) => {
     if (bt.export_value < bt.import_value) {
       // deficit
       if (maxNetValue < 0) {
@@ -454,7 +454,7 @@
     }
   }
 
-  function getNetValueBarHeight(bt: BilateralTradeYear) {
+  $: getNetValueBarHeight = (bt: BilateralTradeYear) => {
     if (bt.export_value < bt.import_value) {
       if (maxNetValue < 0) {
         // straight from the top
