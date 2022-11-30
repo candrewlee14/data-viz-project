@@ -19,7 +19,7 @@
     productData: Map<number, Product>;
     country1_id: number;
     country2_id: number;
-    countryColorScale: d3.ScaleOrdinal<number, string, never>;
+    // countryColorScale: d3.ScaleOrdinal<number, string, never>;
   };
 
   let {
@@ -28,7 +28,7 @@
     productData,
     country1_id: country1,
     country2_id: country2,
-    countryColorScale,
+    // countryColorScale,
   } = data;
   $: ({
     bilateralData,
@@ -36,7 +36,7 @@
     productData,
     country1_id: country1,
     country2_id: country2,
-    countryColorScale,
+    // countryColorScale,
   } = data);
 
   const MARGIN = 35;
@@ -57,6 +57,9 @@
 
   const surplus = "#4daf4a";
   const deficit = "#e41a1c";
+
+  const country1Color = "#377eb8";
+  const country2Color = "#ff7f00";
 
   let width = 0;
   let height = 0;
@@ -126,30 +129,34 @@
     .nice();
 
   $: brushFunc = (e: any) => {
-      if (e?.selection === null || e?.selection[1] - e?.selection[0] < 5) {
-        years.set([2020]);
-        isBrushing = false;
-      } else {
-        isBrushing = true;
-        let selection = e.selection as BrushSelection;
-        const x0 = selection[0] as number;
-        const x1 = selection[1] as number;
-        let firstYear = Math.ceil(xScale.invert(x0));
-        let lastYear = Math.floor(xScale.invert(x1));
-        let selYears = [];
-        for (let i = firstYear; i <= lastYear; i++) {
-          selYears.push(i);
-        }
-        years.set(selYears);
+    if (e?.selection === null || e?.selection[1] - e?.selection[0] < 5) {
+      years.set([2020]);
+      isBrushing = false;
+    } else {
+      isBrushing = true;
+      let selection = e.selection as BrushSelection;
+      const x0 = selection[0] as number;
+      const x1 = selection[1] as number;
+      let firstYear = Math.ceil(xScale.invert(x0));
+      let lastYear = Math.floor(xScale.invert(x1));
+      let selYears = [];
+      for (let i = firstYear; i <= lastYear; i++) {
+        selYears.push(i);
       }
-    };
+      years.set(selYears);
+    }
+  };
 
   $: {
-    let brush = d3.brushX()
-    .extent([[MARGIN_LEFT - 1, MARGIN + 10], [width - MARGIN_RIGHT + 1, height - MARGIN]])
-    .on("start brush end", brushFunc);
+    let brush = d3
+      .brushX()
+      .extent([
+        [MARGIN_LEFT - 1, MARGIN + 10],
+        [width - MARGIN_RIGHT + 1, height - MARGIN],
+      ])
+      .on("start brush end", brushFunc);
     d3.select(brushElem).call(brush);
-  };
+  }
 
   $: maxNetValue =
     d3.max(tradeYearGrossValues, (d) => d.export_value - d.import_value) ?? 0;
@@ -267,14 +274,7 @@
         .attr("class", "title")
         .attr("x", getTooltipX(e.layerX, TEXT_OFFSET_X))
         .attr("y", getTooltipY(e.layerY, TEXT_OFFSET_Y_TITLE, tooltipHeight))
-        .style(
-          "fill",
-          countryColorScale
-            ? isExport
-              ? countryColorScale(bt.location_id)
-              : countryColorScale(bt.partner_id)
-            : "black"
-        )
+        .style("fill", isExport ? country1Color : country2Color)
         .text(`${bt.year} ` + (isExport ? "Export" : "Import"));
 
       if ($sectors.size > 0) {
@@ -511,7 +511,7 @@
           x={xScale($years[0]) - 12}
           y={44}
           width="24"
-          height={(height - 44 - MARGIN) > 0 ? (height - 44 - MARGIN) : 0}
+          height={height - 44 - MARGIN > 0 ? height - 44 - MARGIN : 0}
           fill="rgba(0,0,0,0.2)"
         />
       {/if}
@@ -546,7 +546,7 @@
           cx="20"
           cy="10"
           r="5"
-          fill={countryColorScale(country1)}
+          fill={country1Color}
           stroke="rgba(0,0,0,0)"
           stroke-width="2"
         />
@@ -558,7 +558,7 @@
           cx="20"
           cy="25"
           r="5"
-          fill={countryColorScale(country2)}
+          fill={country2Color}
           stroke="rgba(0,0,0,0)"
           stroke-width="2"
         />
@@ -634,7 +634,7 @@
         <path
           bind:this={country1Line}
           fill="none"
-          stroke={countryColorScale(country1)}
+          stroke={country1Color}
           stroke-width="2"
         />
         {#each tradeYearGrossValues as bt (bt.year)}
@@ -642,12 +642,14 @@
             class="circ1"
             cx={xScale(bt.year)}
             cy={yScaleGrossValues(bt.export_value)}
-            r="6"
-            fill={countryColorScale(country1)}
+            r={$years.includes(bt.year)
+              ? "7"
+              : "6"}
+            fill={country1Color}
             stroke={$years.includes(bt.year)
               ? "rgba(0,0,0,1)"
-              : "rgba(0,0,0,0)"}
-            stroke-width="2"
+              : "#666666"}
+            stroke-width="1"
             on:click={updateYear(bt.year)}
             on:keydown={() => {}}
             on:keypress
@@ -663,19 +665,21 @@
         <path
           bind:this={country2Line}
           fill="none"
-          stroke={countryColorScale(country2)}
+          stroke={country2Color}
           stroke-width="2"
         />
         {#each tradeYearGrossValues as bt (bt.year)}
           <circle
             cx={xScale(bt.year)}
             cy={yScaleGrossValues(bt.import_value)}
-            r="6"
-            fill={countryColorScale(country2)}
+            r={$years.includes(bt.year)
+              ? "7"
+              : "6"}
+            fill={country2Color}
             stroke={$years.includes(bt.year)
               ? "rgba(0,0,0,1)"
-              : "rgba(0,0,0,0)"}
-            stroke-width="2"
+              : "#666666"}
+            stroke-width="1"
             on:click={updateYear(bt.year)}
             on:keydown={() => {}}
             on:keypress
@@ -707,6 +711,7 @@
 <style>
   .country-group circle {
     transition: cx, cy 0.3s ease-in-out;
+    /* stroke:white; */
   }
 
   .surplus {

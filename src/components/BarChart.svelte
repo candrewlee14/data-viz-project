@@ -10,7 +10,7 @@
     locationData: Map<number, Location>;
     bilateralData: Map<number, Map<number, Map<number, BilateralTradeYear[]>>>;
     productColorScale: d3.ScaleOrdinal<string, string, never> | null;
-    countryColorScale: d3.ScaleOrdinal<number, string, never>;
+    // countryColorScale: d3.ScaleOrdinal<number, string, never>;
     country1: Location | null;
     country2: Location | null;
     loadingDrilldown: boolean;
@@ -32,7 +32,7 @@
   let {
     bilateralData,
     productColorScale,
-    countryColorScale,
+    // countryColorScale,
     country1,
     country2,
     loadingDrilldown,
@@ -42,7 +42,7 @@
   $: ({
     bilateralData,
     productColorScale,
-    countryColorScale,
+    // countryColorScale,
     country1,
     country2,
     loadingDrilldown,
@@ -69,6 +69,13 @@
   const TEXT_OFFSET_X = 20;
   const TEXT_OFFSET_Y_BASE = 35;
   const TEXT_OFFSET_Y_INCRE = 22;
+
+  const country1Color = "#377eb8";
+  const country2Color = "#ff7f00";
+
+  // const country1Color = "#f28e2c";
+  // const country2Color = "#4e79a7";
+  // ["#4e79a7","#f28e2c"]
 
   const formatter = (val: number) => d3.format("$.3s")(val).replace(/G/, "B");
 
@@ -213,14 +220,7 @@
         .attr("id", "tooltip-text1")
         .attr("x", getTooltipX(e.layerX, TEXT_OFFSET_X, tooltipWidth))
         .attr("y", getTooltipY(e.layerY, TEXT_OFFSET_Y_BASE))
-        .style(
-          "fill",
-          countryColorScale
-            ? isExport
-              ? countryColorScale(bt.location_id)
-              : countryColorScale(bt.partner_id)
-            : "black"
-        )
+        .style("fill", isExport ? country1Color : country2Color)
         .text(`${bt.product.name}`);
 
       tooltip
@@ -437,7 +437,7 @@
               y={ROW_SPACE / 2}
               height={ROW_HEIGHT - ROW_SPACE}
               width={barScale(0) - barScale(-bt.export_value)}
-              fill={countryColorScale(bt.location_id)}
+              fill={country1Color}
               on:focus
               on:keydown={() => {}}
               on:mouseover={mouseOver(bt, true)}
@@ -472,7 +472,7 @@
               y={ROW_SPACE / 2}
               height={ROW_HEIGHT - ROW_SPACE}
               width={barScale(bt.import_value) - barScale(0)}
-              fill={countryColorScale(bt.partner_id)}
+              fill={country2Color}
               on:focus
               on:keydown={() => {}}
               on:mouseover={mouseOver(bt, false)}
@@ -577,7 +577,7 @@
     width: 100%;
     margin: 0;
   }
-  
+
   rect {
     transition: all 0.4s ease;
   }

@@ -34,7 +34,7 @@
 
   let allTrades: BilateralTradeYear[] | null;
 
-  let countryColorScale: d3.ScaleOrdinal<number, string, never>;
+  // let countryColorScale: d3.ScaleOrdinal<number, string, never>;
 
   let productColorScale: d3.ScaleOrdinal<string, string, never>;
 
@@ -119,10 +119,10 @@
       // @ts-ignore
       exportExtent = d3.extent(b, (v) => +v["export_value"]!);
 
-      countryColorScale = d3.scaleOrdinal(
-        locationData.keys(),
-        d3.schemeTableau10
-      );
+      // countryColorScale = d3.scaleOrdinal(
+      //   locationData.keys(),
+      //   d3.schemeTableau10
+      // );
 
       productColorScale = d3.scaleOrdinal(
         Array.from(productData)
@@ -144,14 +144,18 @@
     <a href={base + "/processbook"} title="process-book">
       {@html feather.icons["book-open"].toSvg()}
     </a>
+    <a href="https://www.youtube.com" title="screencast">
+      {@html feather.icons.youtube.toSvg()}
+    </a>
+    <a href="https://dataverse.harvard.edu/dataverse/atlas" title="data">
+      {@html feather.icons.database.toSvg()}
+    </a>
     <a href="https://github.com/candrewlee14/data-viz-project" title="github">
       {@html feather.icons.github.toSvg()}
     </a>
   </div>
   <div class="heading">
     <h1>Commerce Among Nations</h1>
-    <!-- <h2>Nations are almost always better off when they trade with each other</h2>
-  <p>Commer Among Nations allows you to compare any two countries' trade to reveal 10+ years of trade flow across 1000+ goods.</p> -->
   </div>
   {#if locationData && bilateralData && productData}
     <div class="selectors">
@@ -203,7 +207,7 @@
               country2_id: country2?.id ?? 0,
               productData,
               locationData,
-              countryColorScale,
+              // countryColorScale,
             }}
           />
           <BarChart
@@ -215,45 +219,45 @@
               productColorScale,
               country1,
               country2,
-              countryColorScale,
+              // countryColorScale,
             }}
           />
         </div>
         <div class="spacer">
-        <div class="export-import-btn-container">
-          <span>Showing </span>
-          <button
-            class:btn-active={$showExport}
-            on:click={switchToShowingExport}>Export</button
-          >
-          <button
-            class:btn-active={!$showExport}
-            on:click={switchToShowingImport}>Import</button
-          >
-        </div>
-        <div>
-          <h2 class="chart-header">
-            What did 
-            <b>{country1?.name}</b>
-            {$showExport ? "export to " : "import from "}
-            <b>{country2?.name}</b>
-            {$years.length > 1
-              ? `from ${$years[0]} to ${$years[$years.length - 1]}?`
-              : `in ${$years}?`}
-          </h2>
-        </div>
-        <div class="clear-sectors">
-          {#if $sectors.size > 0}
+          <div>
+            <span>Showing </span>
             <button
-              height="10"
-              in:fade={{ duration: 200 }}
-              out:fade={{ duration: 200 }}
-              on:click={() => {
-                sectors.set(new Set());
-              }}>Clear Sector Selection</button
+              class:btn-active={$showExport}
+              on:click={switchToShowingExport}>Export</button
             >
-          {/if}
-        </div>
+            <button
+              class:btn-active={!$showExport}
+              on:click={switchToShowingImport}>Import</button
+            >
+          </div>
+          <div>
+            <h2 class="chart-header">
+              What did
+              <b>{country1?.name}</b>
+              {$showExport ? "export to " : "import from "}
+              <b>{country2?.name}</b>
+              {$years.length > 1
+                ? `from ${$years[0]} to ${$years[$years.length - 1]}?`
+                : `in ${$years}?`}
+            </h2>
+          </div>
+          <div class="clear-sectors">
+            {#if $sectors.size > 0}
+              <button
+                height="10"
+                in:fade={{ duration: 200 }}
+                out:fade={{ duration: 200 }}
+                on:click={() => {
+                  sectors.set(new Set());
+                }}>Clear Sector Selection</button
+              >
+            {/if}
+          </div>
         </div>
         <div class="viz-row">
           <TreeMap
@@ -271,7 +275,10 @@
       </div>
     </div>
     <footer>
-      <center>A Bilateral Trade Data Visualization by <b>Andrew Lee</b> & <b>Franklin Yuan</b></center>
+      <center
+        >A Bilateral Trade Data Visualization by <b>Andrew Lee</b> &
+        <b>Franklin Yuan</b></center
+      >
     </footer>
   {:else}
     <div class="loading">
@@ -329,8 +336,8 @@
     padding-top: 15px;
     padding-bottom: 20px;
     margin-bottom: 15px;
-    box-shadow: 0px 10px 15px -3px rgba(0,0,0,0.1);    
-    background-color:rgb(255, 255, 255);
+    box-shadow: 0px 10px 15px -3px rgba(0, 0, 0, 0.1);
+    background-color: rgb(255, 255, 255);
   }
   h1 {
     font-size: 2.5rem;
@@ -387,9 +394,9 @@
     border: 2px solid rgba(0, 0, 0, 0.5);
     background-color: #a3a3a3;
   }
-  
+
   footer {
-    color:rgb(146, 146, 146);
+    color: rgb(146, 146, 146);
     padding: 20px 0 40px 0;
   }
 
@@ -506,13 +513,8 @@
     width: 100%;
   }
 
-  .export-import-btn-container {
-    position: relative;
-    width: 200px;
-  }
-
   .btn-active {
-    background-color: pink;
+    background-color: #8dd3c7;
   }
 
   @keyframes rotate {
