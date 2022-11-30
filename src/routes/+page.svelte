@@ -490,6 +490,10 @@
     }
   }
 
+  :global(svg) {
+    background-color: rgb(253, 253, 253);
+  }
+
   .switch-btn-container {
     position: relative;
     width: 55px;
