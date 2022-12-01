@@ -325,7 +325,8 @@
 
 <style lang="scss">
   @import url("https://fonts.googleapis.com/css2?family=Lato:ital,wght@0,400;0,700;1,400&family=Roboto+Slab:wght@300;400;700&display=swap");
-  @import url("https://fonts.googleapis.com/css2?family=Source+Serif+Pro:wght@300;400;600&display=swap");
+  @import url('https://fonts.googleapis.com/css2?family=Source+Serif+Pro:ital,wght@0,300;0,400;0,600;1,600&display=swap');
+  @import url('https://fonts.googleapis.com/css2?family=Zilla+Slab:ital@0,500,600;1&display=swap');
   :global(div, p, text, button) {
     font-family: "Roboto Slab", serif;
   }
@@ -465,13 +466,19 @@
     // ry: 15px;
   }
 
+  :global(.axis-header) {
+    font-family: "Zilla Slab", serif;
+    font-weight: 600;
+  }
+
   :global(.axis-label) {
-    font-family: "Source Serif Pro", serif;
+    font-family: "Zilla Slab", serif;
+    font-weight: 500;
     fill: black;
   }
 
   :global(.axis-ticks) {
-    font-family: "Source Serif Pro", serif;
+    font-family: "Zilla Slab", serif;
     font-size: 0.6em;
   }
 

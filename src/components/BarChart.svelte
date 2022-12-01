@@ -356,7 +356,7 @@
           : " "}
       </text>
       <text
-        class="axis-label from-label sortable"
+        class="axis-header from-label sortable"
         x={PRODUCT_WIDTH}
         y={LABEL_HEIGHT / 2 - 5}
         alignment-baseline="hanging"
@@ -377,7 +377,7 @@
           : " "}
       </text>
       <text
-        class="from-label sortable"
+        class="axis-header from-label sortable"
         x={width - 20}
         y={LABEL_HEIGHT / 2 - 5}
         text-anchor="end"

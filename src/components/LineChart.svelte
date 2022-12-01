@@ -523,17 +523,17 @@
       {/if}
       <g
         id="xAxis"
+        class="axis-ticks"
         bind:this={xAxisElem}
         transform={`translate(${0},${height - MARGIN})`}
       >
         <line
           id="xAxisLine"
-          class="axis-ticks"
           x1={MARGIN_LEFT}
           x2={width - MARGIN_RIGHT}
           y1="0"
           y2="0"
-          stroke="rgba(0,0,0,0.7)"
+          stroke="rgba(0,0,0,1)"
           stroke-width="1"
         />
         <text
@@ -554,7 +554,8 @@
           y={-MARGIN_LEFT}
           text-anchor="center"
           class="axis-label"
-          transform={`translate(10,${height/2.5}) rotate(-90)`}>Gross Exports/Imports</text
+          transform={`translate(10,${height / 2.5}) rotate(-90)`}
+          >Gross Exports/Imports</text
         >
       </g>
       <g
@@ -568,7 +569,8 @@
           y={-MARGIN_LEFT}
           text-anchor="start"
           class="axis-label"
-          transform={`translate(-7,${height/2.5}) rotate(90)`}>Net Exports</text
+          transform={`translate(-7,${height / 2.5}) rotate(90)`}
+          >Net Exports</text
         >
       </g>
       <g id="legendLeft" transform="translate(0,6)">
@@ -581,7 +583,7 @@
           stroke="rgba(0,0,0,0)"
           stroke-width="2"
         />
-        <text x="30" y="15" font-size="13" text-anchor="start"
+        <text class="axis-label" x="30" y="15" font-size="13" text-anchor="start"
           >Export {`to ${locationData.get(country2)?.name}` ?? ""}</text
         >
         <circle
@@ -593,13 +595,13 @@
           stroke="rgba(0,0,0,0)"
           stroke-width="2"
         />
-        <text x="30" y="30" font-size="13" text-anchor="start"
+        <text class="axis-label" x="30" y="30" font-size="13" text-anchor="start"
           >Import {`from ${locationData.get(country2)?.name}` ?? ""}</text
         >
       </g>
       <g
         id="legendRight"
-        transform={`translate(${width - 2 * MARGIN_RIGHT-8},6)`}
+        transform={`translate(${width - 2 * MARGIN_RIGHT - 8},6)`}
       >
         <rect
           class="deficit"
@@ -610,7 +612,7 @@
           fill={deficit}
           opacity="0.6"
         />
-        <text x="30" y="15" font-size="13" text-anchor="start"
+        <text class="axis-label" x="30" y="15" font-size="13" text-anchor="start"
           >Trade Deficit</text
         >
         <rect
@@ -622,7 +624,7 @@
           fill={surplus}
           opacity="0.6"
         />
-        <text x="30" y="30" font-size="13" text-anchor="start"
+        <text class="axis-label" x="30" y="30" font-size="13" text-anchor="start"
           >Trade Surplus</text
         >
       </g>

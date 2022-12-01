@@ -402,7 +402,7 @@
             class="treemap-inner"
             transform={`translate(${leaf.x0},${leaf.y0})`}
           >
-            {#if (leaf.x1 - leaf.x0) > 0 && (leaf.y1 - leaf.y0) > 0}
+            {#if leaf.x1 - leaf.x0 > 0 && leaf.y1 - leaf.y0 > 0}
               <rect
                 class="leaf"
                 width={leaf.x1 - leaf.x0}
@@ -418,7 +418,7 @@
                 on:mouseleave={mouseLeave()}
               />
             {/if}
-            {#if (leaf.x1 - leaf.x0) > 3 && (leaf.y1 - leaf.y0) > 0}
+            {#if leaf.x1 - leaf.x0 > 3 && leaf.y1 - leaf.y0 > 0}
               <clipPath id={`${uid}-clip-${i}`}>
                 <rect
                   width={leaf.x1 - leaf.x0 - 3}
