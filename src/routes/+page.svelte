@@ -468,18 +468,20 @@
 
   :global(.axis-header) {
     font-family: "Zilla Slab", serif;
+    font-size: 15px;
     font-weight: 600;
   }
 
   :global(.axis-label) {
-    font-family: "Zilla Slab", serif;
+    // font-family: "Zilla Slab", serif;
+    font-size: 13px;
     font-weight: 500;
     fill: black;
   }
 
   :global(.axis-ticks) {
     font-family: "Zilla Slab", serif;
-    font-size: 0.6em;
+    font-size: 0.65em;
   }
 
   :global(.tooltip > text) {

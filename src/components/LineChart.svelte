@@ -49,7 +49,7 @@
   const MARGIN = 35;
   const MARGIN_TOP = 15;
   const MARGIN_LEFT = 55;
-  const MARGIN_RIGHT = 55;
+  const MARGIN_RIGHT = 61;
 
   const BAND_WIDTH = 16;
 
@@ -569,7 +569,7 @@
           y={-MARGIN_LEFT}
           text-anchor="start"
           class="axis-label"
-          transform={`translate(-7,${height / 2.5}) rotate(90)`}
+          transform={`translate(-4,${height / 2.5}) rotate(90)`}
           >Net Exports</text
         >
       </g>
