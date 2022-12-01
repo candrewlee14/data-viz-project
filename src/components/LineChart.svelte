@@ -611,7 +611,7 @@
       </g>
       <g
         id="legendRight"
-        transform={`translate(${width - 2 * MARGIN_RIGHT - 8},6)`}
+        transform={`translate(${width - 2 * MARGIN_RIGHT + 2},6)`}
       >
         <rect
           class="deficit"
