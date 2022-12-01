@@ -583,7 +583,12 @@
           stroke="rgba(0,0,0,0)"
           stroke-width="2"
         />
-        <text class="axis-label" x="30" y="15" font-size="13" text-anchor="start"
+        <text
+          class="axis-label"
+          x="30"
+          y="15"
+          font-size="13"
+          text-anchor="start"
           >Export {`to ${locationData.get(country2)?.name}` ?? ""}</text
         >
         <circle
@@ -595,7 +600,12 @@
           stroke="rgba(0,0,0,0)"
           stroke-width="2"
         />
-        <text class="axis-label" x="30" y="30" font-size="13" text-anchor="start"
+        <text
+          class="axis-label"
+          x="30"
+          y="30"
+          font-size="13"
+          text-anchor="start"
           >Import {`from ${locationData.get(country2)?.name}` ?? ""}</text
         >
       </g>
@@ -612,8 +622,12 @@
           fill={deficit}
           opacity="0.6"
         />
-        <text class="axis-label" x="30" y="15" font-size="13" text-anchor="start"
-          >Trade Deficit</text
+        <text
+          class="axis-label"
+          x="30"
+          y="15"
+          font-size="13"
+          text-anchor="start">Trade Deficit</text
         >
         <rect
           class="surplus"
@@ -624,8 +638,12 @@
           fill={surplus}
           opacity="0.6"
         />
-        <text class="axis-label" x="30" y="30" font-size="13" text-anchor="start"
-          >Trade Surplus</text
+        <text
+          class="axis-label"
+          x="30"
+          y="30"
+          font-size="13"
+          text-anchor="start">Trade Surplus</text
         >
       </g>
       <g id="net-values-group">
