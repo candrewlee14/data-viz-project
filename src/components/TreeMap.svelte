@@ -236,37 +236,6 @@
     }
   }
 
-  // function getTooltipXY(
-  //   e: any,
-  //   offsetX: number,
-  //   offsetY: number,
-  //   tooltipWidth: number
-  // ) {
-  //   const eventX = e.layerX;
-  //   const eventY = e.layerY;
-  //   let x, y: number;
-
-  //   if (eventX + tooltipWidth < width) {
-  //     if (eventY + TOOLTIP_RECT_HEIGHT < height) {
-  //       x = eventX + offsetX;
-  //       y = eventY + offsetY;
-  //     } else {
-  //       x = eventX + offsetX;
-  //       y = eventY + offsetY - TOOLTIP_RECT_HEIGHT;
-  //     }
-  //   } else {
-  //     if (eventY + TOOLTIP_RECT_HEIGHT < height) {
-  //       x = eventX + offsetX - tooltipWidth;
-  //       y = eventY + offsetY;
-  //     } else {
-  //       // special case
-  //       x = eventX + offsetX - tooltipWidth;
-  //       y = eventY + offsetY - TOOLTIP_RECT_HEIGHT;
-  //     }
-  //   }
-  //   return [x, y];
-  // }
-
   function mouseOver(bt: BilateralTradeYear): (e: any) => void {
     return (e: any) => {
       let tooltip = d3.select("#treemap-tooltip");
@@ -274,11 +243,6 @@
         TOOLTIP_RECT_WIDTH_BASE + $years.length * TOOLTIP_RECT_WIDTH_INCRE,
         TOOLTIP_RECT_WIDTH_BASE + 10 + (bt.product.name.length - 20) * 8
       );
-
-      // let tooltipXY: [number, number];
-
-      // console.log("x", getTooltipX(e.layerX, TOOLTIP_OFFSET, tooltipWidth));
-      // console.log("y", getTooltipY(e.layerY, TOOLTIP_OFFSET));
 
       tooltip
         .append("rect")
@@ -438,63 +402,70 @@
             class="treemap-inner"
             transform={`translate(${leaf.x0},${leaf.y0})`}
           >
-            <rect
-              class="leaf"
-              width={leaf.x1 - leaf.x0}
-              height={leaf.y1 - leaf.y0}
-              fill={productColorScale
-                ? productColorScale(leaf.data?.product?.parent?.name ?? "")
-                : "white"}
-              on:keydown={() => {}}
-              on:click={onClick(leaf.data)}
-              on:focus
-              on:mouseover={mouseOver(leaf.data)}
-              on:mousemove={mouseMove(leaf.data)}
-              on:mouseleave={mouseLeave()}
-            />
-            <clipPath id={`${uid}-clip-${i}`}>
-              <rect width={leaf.x1 - leaf.x0 - 3} height={leaf.y1 - leaf.y0} />
-            </clipPath>
+            {#if (leaf.x1 - leaf.x0) > 0 && (leaf.y1 - leaf.y0) > 0}
+              <rect
+                class="leaf"
+                width={leaf.x1 - leaf.x0}
+                height={leaf.y1 - leaf.y0}
+                fill={productColorScale
+                  ? productColorScale(leaf.data?.product?.parent?.name ?? "")
+                  : "white"}
+                on:keydown={() => {}}
+                on:click={onClick(leaf.data)}
+                on:focus
+                on:mouseover={mouseOver(leaf.data)}
+                on:mousemove={mouseMove(leaf.data)}
+                on:mouseleave={mouseLeave()}
+              />
+            {/if}
+            {#if (leaf.x1 - leaf.x0) > 3 && (leaf.y1 - leaf.y0) > 0}
+              <clipPath id={`${uid}-clip-${i}`}>
+                <rect
+                  width={leaf.x1 - leaf.x0 - 3}
+                  height={leaf.y1 - leaf.y0}
+                />
+              </clipPath>
+            {/if}
             {#if leaf.y1 - leaf.y0 > 15}
-            <text
-              class="label"
-              clip-path={`url(${new URL(
-                `#${uid}-clip-${i}`,
-                window.location.href
-              )})`}
-              transform={`translate(4,5)`}
-              alignment-baseline="hanging"
-              on:keydown={() => {}}
-              on:click={onClick(leaf.data)}
-              on:focus
-              on:mouseover={mouseOver(leaf.data)}
-              on:mousemove={mouseMove(leaf.data)}
-              on:mouseleave={mouseLeave()}
-            >
-              {leaf.data?.product.name?.substring(0, 40) ?? ""}
-            </text>
+              <text
+                class="label"
+                clip-path={`url(${new URL(
+                  `#${uid}-clip-${i}`,
+                  window.location.href
+                )})`}
+                transform={`translate(4,5)`}
+                alignment-baseline="hanging"
+                on:keydown={() => {}}
+                on:click={onClick(leaf.data)}
+                on:focus
+                on:mouseover={mouseOver(leaf.data)}
+                on:mousemove={mouseMove(leaf.data)}
+                on:mouseleave={mouseLeave()}
+              >
+                {leaf.data?.product.name?.substring(0, 40) ?? ""}
+              </text>
             {/if}
             {#if leaf.y1 - leaf.y0 > 35}
-            <text
-              class="label-num"
-              clip-path={`url(${new URL(
-                `#${uid}-clip-${i}`,
-                window.location.href
-              )})`}
-              transform={`translate(4,${23})`}
-              alignment-baseline="hanging"
-              font-weight="300"
-              on:keydown={() => {}}
-              on:click={onClick(leaf.data)}
-              on:focus
-              on:mouseover={mouseOver(leaf.data)}
-              on:mousemove={mouseMove(leaf.data)}
-              on:mouseleave={mouseLeave()}
-            >
-              {formatter(
-                $showExport ? leaf.data.export_value : leaf.data.import_value
-              )}
-            </text>
+              <text
+                class="label-num"
+                clip-path={`url(${new URL(
+                  `#${uid}-clip-${i}`,
+                  window.location.href
+                )})`}
+                transform={`translate(4,${23})`}
+                alignment-baseline="hanging"
+                font-weight="300"
+                on:keydown={() => {}}
+                on:click={onClick(leaf.data)}
+                on:focus
+                on:mouseover={mouseOver(leaf.data)}
+                on:mousemove={mouseMove(leaf.data)}
+                on:mouseleave={mouseLeave()}
+              >
+                {formatter(
+                  $showExport ? leaf.data.export_value : leaf.data.import_value
+                )}
+              </text>
             {/if}
           </g>
         {/if}
