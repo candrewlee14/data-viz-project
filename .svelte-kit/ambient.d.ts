@@ -32,9 +32,9 @@ declare module '$env/static/private' {
 	export const TERM_PROGRAM: string;
 	export const NODE: string;
 	export const INIT_CWD: string;
-	export const _P9K_TTY: string;
 	export const NVM_CD_FLAGS: string;
 	export const WASMER_DIR: string;
+	export const _P9K_TTY: string;
 	export const TERM: string;
 	export const SHELL: string;
 	export const npm_config_metrics_registry: string;
@@ -140,9 +140,9 @@ declare module '$env/dynamic/private' {
 		TERM_PROGRAM: string;
 		NODE: string;
 		INIT_CWD: string;
-		_P9K_TTY: string;
 		NVM_CD_FLAGS: string;
 		WASMER_DIR: string;
+		_P9K_TTY: string;
 		TERM: string;
 		SHELL: string;
 		npm_config_metrics_registry: string;
