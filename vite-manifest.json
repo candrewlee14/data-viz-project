@@ -1,11 +1,11 @@
 {
   "node_modules/@sveltejs/kit/src/runtime/client/start.js": {
-    "file": "_app/immutable/start-a3a847e6.js",
+    "file": "_app/immutable/start-5587270b.js",
     "src": "node_modules/@sveltejs/kit/src/runtime/client/start.js",
     "isEntry": true,
     "imports": [
       "_index-5ece49a7.js",
-      "_singletons-aa7bebea.js",
+      "_singletons-e2f39c0d.js",
       "_paths-6cd3a76e.js"
     ],
     "dynamicImports": [
@@ -24,16 +24,16 @@
     ]
   },
   "node_modules/@sveltejs/kit/src/runtime/components/error.svelte": {
-    "file": "_app/immutable/components/error.svelte-d33dc7d9.js",
+    "file": "_app/immutable/components/error.svelte-81fe5261.js",
     "src": "node_modules/@sveltejs/kit/src/runtime/components/error.svelte",
     "isEntry": true,
     "imports": [
       "_index-5ece49a7.js",
-      "_singletons-aa7bebea.js"
+      "_singletons-e2f39c0d.js"
     ]
   },
   "src/routes/+page.svelte": {
-    "file": "_app/immutable/components/pages/_page.svelte-0fa1ac90.js",
+    "file": "_app/immutable/components/pages/_page.svelte-cc69797d.js",
     "src": "src/routes/+page.svelte",
     "isEntry": true,
     "imports": [
@@ -59,8 +59,8 @@
       "_app/immutable/assets/_page-dea90c27.css"
     ]
   },
-  "_singletons-aa7bebea.js": {
-    "file": "_app/immutable/chunks/singletons-aa7bebea.js",
+  "_singletons-e2f39c0d.js": {
+    "file": "_app/immutable/chunks/singletons-e2f39c0d.js",
     "imports": [
       "_index-747ceb65.js",
       "_paths-6cd3a76e.js"
@@ -90,7 +90,7 @@
     ]
   },
   ".svelte-kit/generated/nodes/1.js": {
-    "file": "_app/immutable/chunks/1-177c6ada.js",
+    "file": "_app/immutable/chunks/1-ede85584.js",
     "src": ".svelte-kit/generated/nodes/1.js",
     "isDynamicEntry": true,
     "imports": [
@@ -98,7 +98,7 @@
     ]
   },
   ".svelte-kit/generated/nodes/2.js": {
-    "file": "_app/immutable/chunks/2-a5e8ecad.js",
+    "file": "_app/immutable/chunks/2-cc4a87d8.js",
     "src": ".svelte-kit/generated/nodes/2.js",
     "isDynamicEntry": true,
     "imports": [
