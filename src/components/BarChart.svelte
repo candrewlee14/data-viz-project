@@ -370,7 +370,7 @@
           }
         }}
       >
-        Export to {country2?.name + " "}{sortMethod == SortMethod.LeftUp
+        Export to {((country2?.name.length ?? 0) > 19 ? (country2?.name ?? "").substring(0, 19) + "..." : country2?.name) + " "}{sortMethod == SortMethod.LeftUp
           ? "↑"
           : sortMethod == SortMethod.LeftDown
           ? "↓"
@@ -396,7 +396,7 @@
           ? "↑"
           : sortMethod == SortMethod.RightDown
           ? "↓"
-          : " "}&nbsp;Import from {country2?.name}
+          : " "}&nbsp;Import from {(country2?.name.length ?? 0) > 19 ? (country2?.name ?? "").substring(0, 19) + "..." : country2?.name}
       </text>
       <g id="bar-content" transform={`translate(${0},${LABEL_HEIGHT})`}>
         {#each tradeData as bt, i (bt.product_id)}
