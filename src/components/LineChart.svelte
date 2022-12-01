@@ -128,8 +128,8 @@
 
   $: brushFunc = (e: any) => {
     if (e?.selection === null || e?.selection[1] - e?.selection[0] < 5) {
-      years.set([2020]);
       isBrushing = false;
+      years.set([2020]);
     } else {
       isBrushing = true;
       let selection = e.selection as BrushSelection;
@@ -145,14 +145,15 @@
     }
   };
 
-  $: {
-    let brush = d3
+  $: brush = d3
       .brushX()
       .extent([
         [MARGIN_LEFT - 1, MARGIN + 10],
         [width - MARGIN_RIGHT + 1, height - MARGIN],
       ])
       .on("start brush end", brushFunc);
+
+  $: {
     d3.select(brushElem).call(brush);
   }
 
@@ -227,7 +228,11 @@
           .sort();
 
   function updateYear(aYear: number): () => void {
-    return () => years.set([aYear]);
+    return () => {
+      isBrushing = false;
+      d3.select(brushElem).call(brush.clear);
+      years.set([aYear]);
+    }
   }
 
   function getTooltipX(eventX: number, offsetX: number): number {

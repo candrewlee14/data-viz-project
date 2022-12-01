@@ -1,6 +1,5 @@
 <script lang="ts">
   import * as d3 from "d3";
-  import { construct_svelte_component } from "svelte/internal";
   import { sectors, showExport, years } from "../global/store";
   import { BilateralTradeYear, Product, type Location } from "../models/models";
 
@@ -433,7 +432,7 @@
   <svg>
     <g class="treemap" bind:this={treemapElem}>
       {#each leaves as leaf (leaf.data.product_id)}
-        {#if $years.length > 0 && leaf.x1 != NaN && leaf.x0 != NaN && leaf.y0 != NaN && leaf.y1 != NaN}
+        {#if $years.length > 0}
           <rect
             class="leaf"
             transform={`translate(${leaf.x0},${leaf.y0})`}

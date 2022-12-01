@@ -145,7 +145,7 @@
     <a href={base + "/processbook"} title="process-book">
       {@html feather.icons["book-open"].toSvg()}
     </a>
-    <a href="https://www.youtube.com" title="screencast" target="_blank" rel="noreferrer">
+    <a href="https://www.youtube.com/watch?v=OXdyF8Prxyw" title="screencast" target="_blank" rel="noreferrer">
       {@html feather.icons.youtube.toSvg()}
     </a>
     <a href="https://dataverse.harvard.edu/dataverse/atlas" title="data" target="_blank" rel="noreferrer">
@@ -335,7 +335,7 @@
     a:active,
     a:visited {
       margin-top: 25px;
-      padding: 10px;
+      padding: 7px 13px;
       color: rgb(68, 68, 68);
     }
   }
