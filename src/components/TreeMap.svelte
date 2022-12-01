@@ -4,6 +4,7 @@
   import { BilateralTradeYear, Product, type Location } from "../models/models";
 
   const formatter = (val: number) => d3.format("$.3s")(val).replace(/G/, "B");
+  const uid = `O-${Math.random().toString(16).slice(2)}`;
 
   export let data: {
     country1: Location | null;
@@ -431,29 +432,38 @@
 >
   <svg>
     <g class="treemap" bind:this={treemapElem}>
-      {#each leaves as leaf (leaf.data.product_id)}
+      {#each leaves as leaf, i (leaf.data.product_id)}
         {#if $years.length > 0}
-          <rect
-            class="leaf"
+          <g
+            class="treemap-inner"
             transform={`translate(${leaf.x0},${leaf.y0})`}
-            width={leaf.x1 - leaf.x0}
-            height={leaf.y1 - leaf.y0}
-            fill={productColorScale
-              ? productColorScale(leaf.data?.product?.parent?.name ?? "")
-              : "white"}
-            on:keydown={() => {}}
-            on:click={onClick(leaf.data)}
-            on:focus
-            on:mouseover={mouseOver(leaf.data)}
-            on:mousemove={mouseMove(leaf.data)}
-            on:mouseleave={mouseLeave()}
-          />
-          {#if leaf.x1 - leaf.x0 > 40 && leaf.y1 - leaf.y0 > 10}
+          >
+            <rect
+              class="leaf"
+              width={leaf.x1 - leaf.x0}
+              height={leaf.y1 - leaf.y0}
+              fill={productColorScale
+                ? productColorScale(leaf.data?.product?.parent?.name ?? "")
+                : "white"}
+              on:keydown={() => {}}
+              on:click={onClick(leaf.data)}
+              on:focus
+              on:mouseover={mouseOver(leaf.data)}
+              on:mousemove={mouseMove(leaf.data)}
+              on:mouseleave={mouseLeave()}
+            />
+            <clipPath id={`${uid}-clip-${i}`}>
+              <rect width={leaf.x1 - leaf.x0 - 3} height={leaf.y1 - leaf.y0} />
+            </clipPath>
+            {#if leaf.y1 - leaf.y0 > 15}
             <text
               class="label"
-              transform={`translate(${leaf.x0 + 3},${leaf.y0 + 3})`}
+              clip-path={`url(${new URL(
+                `#${uid}-clip-${i}`,
+                window.location.href
+              )})`}
+              transform={`translate(4,5)`}
               alignment-baseline="hanging"
-              font-size={Math.max((leaf.x1 - leaf.x0) / 15, 8)}
               on:keydown={() => {}}
               on:click={onClick(leaf.data)}
               on:focus
@@ -463,15 +473,16 @@
             >
               {leaf.data?.product.name?.substring(0, 40) ?? ""}
             </text>
-          {/if}
-          {#if leaf.x1 - leaf.x0 > 40 && leaf.y1 - leaf.y0 > 30}
+            {/if}
+            {#if leaf.y1 - leaf.y0 > 35}
             <text
               class="label-num"
-              transform={`translate(${leaf.x0 + 5},${
-                leaf.y0 + 1 + Math.max((leaf.x1 - leaf.x0) / 10, 8)
-              })`}
+              clip-path={`url(${new URL(
+                `#${uid}-clip-${i}`,
+                window.location.href
+              )})`}
+              transform={`translate(4,${23})`}
               alignment-baseline="hanging"
-              font-size={Math.max((leaf.x1 - leaf.x0) / 15, 8) - 1}
               font-weight="300"
               on:keydown={() => {}}
               on:click={onClick(leaf.data)}
@@ -484,7 +495,8 @@
                 $showExport ? leaf.data.export_value : leaf.data.import_value
               )}
             </text>
-          {/if}
+            {/if}
+          </g>
         {/if}
       {/each}
     </g>
@@ -520,6 +532,10 @@
   }
   .treemap text {
     transition: all 0.4s ease;
+    font-size: 12px;
+  }
+  .treemap-inner {
+    transition: transform 0.4s ease;
   }
   .treemap rect {
     transition: all 0.4s ease;
