@@ -356,7 +356,7 @@
           : " "}
       </text>
       <text
-        class="from-label sortable"
+        class="axis-label from-label sortable"
         x={PRODUCT_WIDTH}
         y={LABEL_HEIGHT / 2 - 5}
         alignment-baseline="hanging"
@@ -539,7 +539,7 @@
           stroke="rgba(0,0,0,0.1)"
           stroke-width="1"
         />
-        <g id="axis" bind:this={axisElem} />
+        <g id="axis" class="axis-ticks" bind:this={axisElem} />
       </g>
       <g id="bar-chart-tooltip" class="tooltip" />
     {:else}

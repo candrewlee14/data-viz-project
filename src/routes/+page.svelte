@@ -145,13 +145,28 @@
     <a href={base + "/processbook"} title="process-book">
       {@html feather.icons["book-open"].toSvg()}
     </a>
-    <a href="https://www.youtube.com/watch?v=OXdyF8Prxyw" title="screencast" target="_blank" rel="noreferrer">
+    <a
+      href="https://www.youtube.com/watch?v=OXdyF8Prxyw"
+      title="screencast"
+      target="_blank"
+      rel="noreferrer"
+    >
       {@html feather.icons.youtube.toSvg()}
     </a>
-    <a href="https://dataverse.harvard.edu/dataverse/atlas" title="data" target="_blank" rel="noreferrer">
+    <a
+      href="https://dataverse.harvard.edu/dataverse/atlas"
+      title="data"
+      target="_blank"
+      rel="noreferrer"
+    >
       {@html feather.icons.database.toSvg()}
     </a>
-    <a href="https://github.com/candrewlee14/data-viz-project" title="github" target="_blank" rel="noreferrer">
+    <a
+      href="https://github.com/candrewlee14/data-viz-project"
+      title="github"
+      target="_blank"
+      rel="noreferrer"
+    >
       {@html feather.icons.github.toSvg()}
     </a>
   </div>
@@ -167,9 +182,9 @@
       />
       <div class="dropdown">
         <div class="country-title">
-          <div style={`background-color:${country1Color}`}></div>
+          <div style={`background-color:${country1Color}`} />
           <span>Country</span>
-          <div style={`background-color:${country1Color}`}></div>
+          <div style={`background-color:${country1Color}`} />
         </div>
         <Select
           {optionIdentifier}
@@ -184,9 +199,9 @@
       </div>
       <div class="dropdown">
         <div class="country-title">
-          <div style={`background-color:${country2Color}`}></div>
+          <div style={`background-color:${country2Color}`} />
           <span>Partner</span>
-          <div style={`background-color:${country2Color}`}></div>
+          <div style={`background-color:${country2Color}`} />
         </div>
         <Select
           {optionIdentifier}
@@ -310,6 +325,7 @@
 
 <style lang="scss">
   @import url("https://fonts.googleapis.com/css2?family=Lato:ital,wght@0,400;0,700;1,400&family=Roboto+Slab:wght@300;400;700&display=swap");
+  @import url("https://fonts.googleapis.com/css2?family=Source+Serif+Pro:wght@300;400;600&display=swap");
   :global(div, p, text, button) {
     font-family: "Roboto Slab", serif;
   }
@@ -449,6 +465,16 @@
     // ry: 15px;
   }
 
+  :global(.axis-label) {
+    font-family: "Source Serif Pro", serif;
+    fill: black;
+  }
+
+  :global(.axis-ticks) {
+    font-family: "Source Serif Pro", serif;
+    font-size: 0.6em;
+  }
+
   :global(.tooltip > text) {
     font-size: 16px;
   }
@@ -548,7 +574,7 @@
     background-color: #5faa9d;
   }
   .btn-inactive {
-    color:rgb(153, 153, 153);
+    color: rgb(153, 153, 153);
   }
 
   @keyframes rotate {

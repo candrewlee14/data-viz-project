@@ -2,7 +2,12 @@
   import type { BrushSelection } from "d3";
   import * as d3 from "d3";
   import { sectors, years } from "../global/store";
-  import { country1Color, country2Color, deficit, surplus } from "../global/color";
+  import {
+    country1Color,
+    country2Color,
+    deficit,
+    surplus,
+  } from "../global/color";
 
   import { fade } from "svelte/transition";
   import {
@@ -43,8 +48,8 @@
 
   const MARGIN = 35;
   const MARGIN_TOP = 15;
-  const MARGIN_LEFT = 50;
-  const MARGIN_RIGHT = 50;
+  const MARGIN_LEFT = 55;
+  const MARGIN_RIGHT = 55;
 
   const BAND_WIDTH = 16;
 
@@ -56,8 +61,6 @@
   const TEXT_OFFSET_Y_TITLE = 35;
   const TEXT_OFFSET_Y_BASE = 37;
   const TEXT_OFFSET_Y_INCRE = 22;
-
-
 
   let width = 0;
   let height = 0;
@@ -146,12 +149,12 @@
   };
 
   $: brush = d3
-      .brushX()
-      .extent([
-        [MARGIN_LEFT - 1, MARGIN + 10],
-        [width - MARGIN_RIGHT + 1, height - MARGIN],
-      ])
-      .on("start brush end", brushFunc);
+    .brushX()
+    .extent([
+      [MARGIN_LEFT - 1, MARGIN + 10],
+      [width - MARGIN_RIGHT + 1, height - MARGIN],
+    ])
+    .on("start brush end", brushFunc);
 
   $: {
     d3.select(brushElem).call(brush);
@@ -232,7 +235,7 @@
       isBrushing = false;
       d3.select(brushElem).call(brush.clear);
       years.set([aYear]);
-    }
+    };
   }
 
   function getTooltipX(eventX: number, offsetX: number): number {
@@ -525,6 +528,7 @@
       >
         <line
           id="xAxisLine"
+          class="axis-ticks"
           x1={MARGIN_LEFT}
           x2={width - MARGIN_RIGHT}
           y1="0"
@@ -532,18 +536,42 @@
           stroke="rgba(0,0,0,0.7)"
           stroke-width="1"
         />
+        <text
+          class="axis-label"
+          x={width / 2}
+          y={MARGIN - 3}
+          text-anchor="start">Year</text
+        >
       </g>
       <g
         id="yAisLeft"
+        class="axis-ticks"
         bind:this={y1AxisElem}
         transform={`translate(${MARGIN_LEFT},${0})`}
-      />
+      >
+        <text
+          x={0}
+          y={-MARGIN_LEFT}
+          text-anchor="center"
+          class="axis-label"
+          transform={`translate(10,${height/2.5}) rotate(-90)`}>Gross Exports/Imports</text
+        >
+      </g>
       <g
         id="yAisRight"
+        class="axis-ticks"
         bind:this={y2AxisElem}
         transform={`translate(${width - MARGIN_RIGHT},${0})`}
-      />
-      <g id="legendLeft" transform="translate(10,6)">
+      >
+        <text
+          x={0}
+          y={-MARGIN_LEFT}
+          text-anchor="start"
+          class="axis-label"
+          transform={`translate(-7,${height/2.5}) rotate(90)`}>Net Exports</text
+        >
+      </g>
+      <g id="legendLeft" transform="translate(0,6)">
         <circle
           class="circ1"
           cx="20"
@@ -571,7 +599,7 @@
       </g>
       <g
         id="legendRight"
-        transform={`translate(${width - 3 * MARGIN_RIGHT + 30},6)`}
+        transform={`translate(${width - 2 * MARGIN_RIGHT-8},6)`}
       >
         <rect
           class="deficit"
@@ -645,13 +673,9 @@
             class="circ1"
             cx={xScale(bt.year)}
             cy={yScaleGrossValues(bt.export_value)}
-            r={$years.includes(bt.year)
-              ? 8
-              : 7}
+            r={$years.includes(bt.year) ? 8 : 7}
             fill={country1Color}
-            stroke={$years.includes(bt.year)
-              ? "rgba(0,0,0,1)"
-              : "#666666"}
+            stroke={$years.includes(bt.year) ? "rgba(0,0,0,1)" : "#666666"}
             stroke-width="1"
             on:click={updateYear(bt.year)}
             on:keydown={() => {}}
@@ -675,13 +699,9 @@
           <circle
             cx={xScale(bt.year)}
             cy={yScaleGrossValues(bt.import_value)}
-            r={$years.includes(bt.year)
-              ? "7"
-              : "6"}
+            r={$years.includes(bt.year) ? "7" : "6"}
             fill={country2Color}
-            stroke={$years.includes(bt.year)
-              ? "rgba(0,0,0,1)"
-              : "#666666"}
+            stroke={$years.includes(bt.year) ? "rgba(0,0,0,1)" : "#666666"}
             stroke-width="1"
             on:click={updateYear(bt.year)}
             on:keydown={() => {}}
@@ -714,7 +734,7 @@
 <style>
   .country-group circle {
     cursor: pointer;
-    outline:none;
+    outline: none;
     transition: cx, cy 0.3s ease-in-out;
     /* stroke:white; */
   }
@@ -729,7 +749,7 @@
 
   rect {
     cursor: pointer;
-    outline:none;
+    outline: none;
     transition: all 0.4s ease;
   }
 </style>
