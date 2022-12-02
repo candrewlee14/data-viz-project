@@ -22,6 +22,7 @@ Directories and files that are worth mentioning:
 
 ```bash
 data-viz-project/
+├ docs/
 ├ src/
 │ ├ components/
 │ │ ├ BarChart.svelte
@@ -38,6 +39,7 @@ data-viz-project/
 │ └ data/
 └ python-scripts/
 ```
+`docs` contains all of the documentation, including our Process Book, in PDF format
 
 `src` contains the source files used to build the web application:
 
