@@ -308,6 +308,7 @@
                   : "white"}
                 on:keydown={() => {}}
                 on:click={onClick(leaf.data)}
+                on:focus
                 on:mouseover={mouseUpdate(leaf.data)}
                 on:mousemove={mouseUpdate(leaf.data)}
                 on:mouseleave={mouseLeave}
@@ -321,6 +322,7 @@
                 height={leaf.y1 - leaf.y0 - 1}
                 on:keydown={() => {}}
                 on:click={onClick(leaf.data)}
+                on:focus
                 on:mouseover={mouseUpdate(leaf.data)}
                 on:mousemove={mouseUpdate(leaf.data)}
                 on:mouseleave={mouseLeave}
@@ -329,6 +331,7 @@
                   class="label"
                   on:keydown={() => {}}
                   on:click={onClick(leaf.data)}
+                  on:focus
                   on:mouseover={mouseUpdate(leaf.data)}
                   on:mousemove={mouseUpdate(leaf.data)}
                   on:mouseleave={mouseLeave}
