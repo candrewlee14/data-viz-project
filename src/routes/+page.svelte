@@ -302,7 +302,7 @@
     </div>
     <footer>
       <center
-        >A Bilateral Trade Data Visualization by <b>Andrew Lee</b> &
+        >A Bilateral Trade Exloration Tool by <b>Andrew Lee</b> &
         <b>Franklin Yuan</b></center
       >
     </footer>

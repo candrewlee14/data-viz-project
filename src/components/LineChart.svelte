@@ -554,7 +554,7 @@
           y={-MARGIN_LEFT}
           text-anchor="center"
           class="axis-label"
-          transform={`translate(10,${height / 2.5}) rotate(-90)`}
+          transform={`translate(10,${height / 3}) rotate(-90)`}
           >Gross Exports/Imports</text
         >
       </g>
