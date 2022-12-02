@@ -1,22 +1,20 @@
-![cover photo](./static/images/cover_photo.jpg)
+![](static/images/cover.jpg)
 
 # Commerce Among Nations
 
-A Bilateral Trade Data Visualization and Exploration Tool
+**A Bilateral Trade Data Visualization and Exploration Tool**
 
-Authors
+Authors: Andrew Lee, Franklin Yuan
 
-* Andrew Lee
+## Links
 
-* Franklin Yuan
-
-Links
-
-- Project website: [Commerce Among Nations](https://candrewlee14.github.io/data-viz-project/)
+- Project website: [Commerce Among Nations](https://candrewlee14.github.io/data-viz-project/) (Please view this web application on Chrome for the best experience.)
 
 - Screencast video: [Commerce Among Nations - Data Viz - YouTube](https://youtu.be/OXdyF8Prxyw)
 
-- Data source: [Atlas of Economic Complexity Dataverse](https://dataverse.harvard.edu/dataverse/atlas)
+- Process book:
+
+- Dataset: [Atlas of Economic Complexity Dataverse](https://dataverse.harvard.edu/dataverse/atlas)
 
 ## Project Structure
 
@@ -37,7 +35,7 @@ data-viz-project/
 │ │ └ +page.svelte
 │ └ app.html
 ├ static/
-│ └ data
+│ └ data/
 └ python-scripts/
 ```
 
@@ -61,8 +59,6 @@ data-viz-project/
 
 `python-scripts` contains helper scripts used during data wrangling
 
-## Data Sources
-
 ## Installation
 
 ```bash
@@ -71,17 +67,34 @@ npm install
 
 # start the server and open the app in a new browser tab
 npm run dev -- --open
- 
 ```
 
 ## Features
 
-### Bar-line Chart
+### Trade Over Time
 
+* The Bar-line Chart displays the bilateral trade history between 2010 and 2020. It combines a line chart that plots the country's gross exports and imports with its trade partner and a bar chart that plots the two countries' bilateral trade balance.
 
+* You can select a range of years through a 1-dimensional brush.
 
-### Diverging Bar Chart
+![](static/images/bar-line-chart.jpg)
 
-### 
+### Trade Flow
 
-### Treemap Chart
+* The Diverging Bar Chart breaks down the bilateral trade into 10 major product sectors and shows the sector-specific trade flow in a given year or a range of years.
+
+* You can sort the sectors by name, exports, imports or total trade in both ascending and decending order. 
+
+* You can also display only specific sectors by clicking on their tabs. 
+
+![](static/images/diverging-bar-chart.jpg) 
+
+### Exports/Imports By Product
+
+* The Tree Map displays a further breakdown of exports or imports by product in a given year or a range of years.
+
+![](static/images/treemap-1.jpg)
+
+* You can aslo isolate and display products from a specific sector by clicking anywhere within the product sector.
+
+![](static/images/treemap-2.jpg)
