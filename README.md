@@ -61,6 +61,8 @@ data-viz-project/
 
 ## Installation
 
+Note: This project uses `Node@v19.0.0`.
+
 ```bash
 # install all dependencies
 npm install
@@ -73,7 +75,7 @@ npm run dev -- --open
 
 ### Trade Over Time
 
-* The Bar-line Chart displays the bilateral trade history between 2010 and 2020. It combines a line chart that plots the country's gross exports and imports with its trade partner and a bar chart that plots the two countries' bilateral trade balance.
+* The Bar-line Chart displays the bilateral trade history between 2010 and 2020. It combines a line chart that plots the country's gross exports and imports with its trade partner and a bar chart that shows the two countries' bilateral trade balance.
 
 * You can select a range of years through a 1-dimensional brush.
 
@@ -81,11 +83,11 @@ npm run dev -- --open
 
 ### Trade Flow
 
-* The Diverging Bar Chart breaks down the bilateral trade into 10 major product sectors and shows the sector-specific trade flow in a given year or a range of years.
+* The Diverging Bar Chart breaks down the bilateral trade into 10 major product sectors and shows sector-specific trade flow in a given year or a range of years.
 
 * You can sort the sectors by name, exports, imports or total trade in both ascending and decending order. 
 
-* You can also display only specific sectors by clicking on their tabs. 
+* You can filter and display specific sectors by clicking on their tabs.
 
 ![](static/images/diverging-bar-chart.jpg) 
 
@@ -95,6 +97,6 @@ npm run dev -- --open
 
 ![](static/images/treemap-1.jpg)
 
-* You can aslo isolate and display products from a specific sector by clicking anywhere within the product sector.
+* You can aslo isolate and display products from a specific sector by clicking anywhere within that product sector on the tree map.
 
 ![](static/images/treemap-2.jpg)
