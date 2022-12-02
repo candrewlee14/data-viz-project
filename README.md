@@ -6,13 +6,17 @@
 
 Authors: Andrew Lee, Franklin Yuan
 
-## Links
 
-- Project website: [Commerce Among Nations](https://candrewlee14.github.io/data-viz-project/) (Please view this web application on Chrome for the best experience.)
 
-- Screencast video: [Commerce Among Nations - Data Viz - YouTube](https://youtu.be/OXdyF8Prxyw)
+> Please view this web application on Chrome for the best experience.
 
-- Process book:
+
+
+- Project Website: [Commerce Among Nations](https://candrewlee14.github.io/data-viz-project/) 
+
+- Screencast Video: [YouTube](https://youtu.be/OXdyF8Prxyw)
+
+- Process book: 
 
 - Dataset: [Atlas of Economic Complexity Dataverse](https://dataverse.harvard.edu/dataverse/atlas)
 
@@ -32,13 +36,13 @@ data-viz-project/
 │ │ └ store.ts
 │ ├ models/
 │ │ └ models.ts
-│ ├ routes/
-│ │ └ +page.svelte
-│ └ app.html
+│ └ routes/
+│   └ +page.svelte
 ├ static/
 │ └ data/
 └ python-scripts/
 ```
+
 `docs` contains all of the documentation, including our Process Book, in PDF format
 
 `src` contains the source files used to build the web application:
@@ -63,7 +67,7 @@ data-viz-project/
 
 ## Installation
 
-Note: This project uses `Node@v19.0.0`.
+> Note: This project uses `Node@v19.0.0`
 
 ```bash
 # install all dependencies
