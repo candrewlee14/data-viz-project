@@ -356,7 +356,7 @@
           : " "}
       </text>
       <text
-        class="axis-label from-label sortable"
+        class="axis-header from-label sortable"
         x={PRODUCT_WIDTH}
         y={LABEL_HEIGHT / 2 - 5}
         alignment-baseline="hanging"
@@ -370,14 +370,16 @@
           }
         }}
       >
-        Export to {((country2?.name.length ?? 0) > 19 ? (country2?.name ?? "").substring(0, 19) + "..." : country2?.name) + " "}{sortMethod == SortMethod.LeftUp
+        Export to {((country2?.name.length ?? 0) > 19
+          ? (country2?.name ?? "").substring(0, 19) + "..."
+          : country2?.name) + " "}{sortMethod == SortMethod.LeftUp
           ? "↑"
           : sortMethod == SortMethod.LeftDown
           ? "↓"
           : " "}
       </text>
       <text
-        class="from-label sortable"
+        class="axis-header from-label sortable"
         x={width - 20}
         y={LABEL_HEIGHT / 2 - 5}
         text-anchor="end"
@@ -396,7 +398,9 @@
           ? "↑"
           : sortMethod == SortMethod.RightDown
           ? "↓"
-          : " "}&nbsp;Import from {(country2?.name.length ?? 0) > 19 ? (country2?.name ?? "").substring(0, 19) + "..." : country2?.name}
+          : " "}&nbsp;Import from {(country2?.name.length ?? 0) > 19
+          ? (country2?.name ?? "").substring(0, 19) + "..."
+          : country2?.name}
       </text>
       <g id="bar-content" transform={`translate(${0},${LABEL_HEIGHT})`}>
         {#each tradeData as bt, i (bt.product_id)}
@@ -579,7 +583,8 @@
     transition: all 0.4s ease;
     outline: none;
   }
-  .country1-bar, .country2-bar {
+  .country1-bar,
+  .country2-bar {
     cursor: pointer;
   }
   .tab {
@@ -593,7 +598,7 @@
     transition: fill 0.1s ease-in-out;
   }
   .product-text:hover {
-    fill:rgb(96, 96, 96);
+    fill: rgb(96, 96, 96);
   }
   .sortable:hover {
     fill: rgb(121, 122, 134);
