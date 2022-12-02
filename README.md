@@ -16,7 +16,7 @@ Authors: Andrew Lee, Franklin Yuan
 
 - Screencast Video: [YouTube](https://youtu.be/OXdyF8Prxyw)
 
-- Process book: 
+- Process book: [PDF on Github](https://github.com/candrewlee14/data-viz-project/blob/main/docs/process-book-final-version.pdf)
 
 - Dataset: [Atlas of Economic Complexity Dataverse](https://dataverse.harvard.edu/dataverse/atlas)
 
