@@ -14,7 +14,7 @@ Authors: Andrew Lee, Franklin Yuan
 
 - Project Website: [Commerce Among Nations](https://candrewlee14.github.io/data-viz-project/) 
 
-- Screencast Video: [YouTube](https://youtu.be/OXdyF8Prxyw)
+- Screencast Video: [YouTube](https://youtu.be/SW7_N_GHnCE)
 
 - Process book: [PDF on Github](https://github.com/candrewlee14/data-viz-project/blob/main/docs/process-book-final-version.pdf)
 

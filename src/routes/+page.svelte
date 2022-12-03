@@ -146,7 +146,7 @@
       {@html feather.icons["book-open"].toSvg()}
     </a>
     <a
-      href="https://www.youtube.com/watch?v=OXdyF8Prxyw"
+      href="https://youtu.be/SW7_N_GHnCE"
       title="screencast"
       target="_blank"
       rel="noreferrer"
